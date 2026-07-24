@@ -886,15 +886,6 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
         {/* Canvas */}
         <Card className="overflow-hidden">
           <CardContent className="p-0">
-            <div className="relative bg-slate-950">
-              {linkFrom && (
-                <div className="absolute top-2 left-2 z-10 bg-primary text-primary-foreground text-xs px-3 py-1 rounded-full shadow">
-                  Clique no destino para conectar &nbsp;
-                  <button onClick={() => setLinkFrom(null)} className="underline">
-                    cancelar
-                  </button>
-                </div>
-              )}
               <FTTHFlow
                 diagram={diagram}
                 setDiagram={setDiagram}
@@ -902,7 +893,6 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
                 onSelectNode={setSelNode}
                 onSelectEdge={setSelEdge}
               />
-            </div>
           </CardContent>
         </Card>
 
