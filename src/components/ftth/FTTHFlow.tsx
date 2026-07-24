@@ -9,6 +9,12 @@ import ReactFlow, {
 
 import "reactflow/dist/style.css";
 
+import OltNode from "./nodes/OltNode";
+
+const nodeTypes = {
+    olt: OltNode,
+};
+
 interface FTTHFlowProps {
     diagram: any;
     setDiagram: React.Dispatch<React.SetStateAction<any>>;
@@ -30,14 +36,9 @@ export default function FTTHFlow({
         },
         data: {
             label: n.label,
+            tx: powers?.tx?.[n.id] ?? 3,
         },
-        type: "default",
-    }));
-
-    const edges: Edge[] = (diagram.edges ?? []).map((e: any) => ({
-        id: e.id,
-        source: e.from,
-        target: e.to,
+        type: n.type,
     }));
 
     return (
@@ -45,6 +46,7 @@ export default function FTTHFlow({
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
+                nodeTypes={nodeTypes}
                 fitView
                 onNodeClick={(_, node) => onSelectNode(node.id)}
                 onEdgeClick={(_, edge) => onSelectEdge(edge.id)}
