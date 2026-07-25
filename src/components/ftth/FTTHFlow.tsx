@@ -29,6 +29,7 @@ export default function FTTHFlow({
     onSelectNode,
     onSelectEdge,
 }: FTTHFlowProps) {
+
     const nodes: Node[] = (diagram.nodes ?? []).map((n: any) => ({
         id: n.id,
         position: {
@@ -40,6 +41,12 @@ export default function FTTHFlow({
             tx: powers?.tx?.[n.id] ?? 3,
         },
         type: n.type,
+    }));
+
+    const edges: Edge[] = (diagram.edges ?? []).map((e: any) => ({
+        id: e.id,
+        source: e.from,
+        target: e.to,
     }));
 
     return (
