@@ -1,10 +1,14 @@
-import React from "react";
+import React, {
+    useCallback
+} from "react";
+
 import ReactFlow, {
     Background,
     Controls,
     MiniMap,
     Node,
     Edge,
+    addEdge,
 } from "reactflow";
 
 import "reactflow/dist/style.css";
@@ -14,6 +18,10 @@ import OltNode from "./nodes/OltNode";
 const nodeTypes = {
     olt: OltNode,
 };
+
+import {
+    canConnect
+} from "./utils/connectionRules";
 
 interface FTTHFlowProps {
     diagram: any;
@@ -25,6 +33,7 @@ interface FTTHFlowProps {
 
 export default function FTTHFlow({
     diagram,
+    setDiagram,
     powers,
     onSelectNode,
     onSelectEdge,
@@ -38,7 +47,9 @@ export default function FTTHFlow({
         },
         data: {
             label: n.label,
+            tipo: n.type,
             tx: powers?.tx?.[n.id] ?? 3,
+            power: powers?.rx?.[n.id] ?? null,
         },
         type: n.type,
     }));
@@ -49,6 +60,70 @@ export default function FTTHFlow({
         target: e.to,
     }));
 
+    const onConnect = useCallback(
+        (params: any) => {
+
+            const source =
+                nodes.find(
+                    n => n.id === params.source
+                );
+
+            const target =
+                nodes.find(
+                    n => n.id === params.target
+                );
+
+            if (!source || !target)
+                return;
+
+            const permitido =
+                canConnect(
+                    source.data.tipo,
+                    target.data.tipo
+                );
+
+            if (!permitido) {
+
+                console.warn(
+                    "Conexão FTTH inválida",
+                    source.data.tipo,
+                    "->",
+                    target.data.tipo
+                );
+
+                return;
+            }
+
+            const novaEdge = {
+
+                id:
+                    `${params.source}-${params.target}`,
+
+                from:
+                    params.source,
+
+                to:
+                    params.target,
+
+            };
+
+            setDiagram((old: any) => ({
+
+                ...old,
+
+                edges: [
+                    ...(old.edges ?? []),
+                    novaEdge
+                ]
+
+            }));
+        },
+        [
+            nodes,
+            setDiagram
+        ]
+    );
+
     return (
         <div style={{ width: "100%", height: "72vh" }}>
             <ReactFlow
@@ -56,6 +131,7 @@ export default function FTTHFlow({
                 edges={edges}
                 nodeTypes={nodeTypes}
                 fitView
+                onConnect={onConnect}
                 onNodeClick={(_, node) => onSelectNode(node.id)}
                 onEdgeClick={(_, edge) => onSelectEdge(edge.id)}
             >
