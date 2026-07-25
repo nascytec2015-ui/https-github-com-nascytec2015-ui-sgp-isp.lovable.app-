@@ -25,6 +25,7 @@ interface FTTHFlowProps {
 
 export default function FTTHFlow({
     diagram,
+    powers,
     onSelectNode,
     onSelectEdge,
 }: FTTHFlowProps) {
