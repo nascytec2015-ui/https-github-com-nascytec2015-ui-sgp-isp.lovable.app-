@@ -26,6 +26,8 @@ import {
     canConnect
 } from "./utils/connectionRules";
 
+import CtoNode from "./nodes/CtoNode";
+
 interface FTTHFlowProps {
     diagram: any;
     setDiagram: React.Dispatch<React.SetStateAction<any>>;
@@ -53,6 +55,8 @@ export default function FTTHFlow({
             tipo: n.type,
             modelo: n.modelo,
             fabricante: n.fabricante,
+            portas: n.portas,
+            portasUsadas: n.portasUsadas,
             portasSaida: n.portasSaida,
             tx: powers?.tx?.[n.id] ?? 3,
             power: powers?.rx?.[n.id],
