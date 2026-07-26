@@ -1,14 +1,15 @@
+import React from "react";
 import { Handle, Position } from "reactflow";
 
 export interface BaseNodeProps {
     title: string;
     subtitle?: string;
 
+    icon?: React.ReactNode;
+
     power?: number;
 
     status?: "ok" | "warning" | "critical";
-
-    icon?: React.ReactNode;
 
     inputs?: number;
     outputs?: number;
@@ -25,9 +26,9 @@ const statusColors = {
 export default function BaseNode({
     title,
     subtitle,
+    icon,
     power,
     status = "ok",
-    icon,
     inputs = 1,
     outputs = 1,
     children,
@@ -36,11 +37,11 @@ export default function BaseNode({
         <div
             style={{
                 minWidth: 180,
-                background: "#fff",
-                border: `2px solid ${statusColors[status]}`,
                 borderRadius: 12,
-                boxShadow: "0 4px 10px rgba(0,0,0,.15)",
                 overflow: "hidden",
+                background: "#ffffff",
+                border: `2px solid ${statusColors[status]}`,
+                boxShadow: "0 4px 8px rgba(0,0,0,0.15)",
             }}
         >
             {inputs > 0 && (
@@ -52,11 +53,11 @@ export default function BaseNode({
 
             <div
                 style={{
-                    background: "#1e293b",
+                    background: "#0f172a",
                     color: "#fff",
-                    padding: "8px",
-                    fontWeight: 600,
                     textAlign: "center",
+                    padding: 8,
+                    fontWeight: 600,
                 }}
             >
                 {title}
@@ -64,25 +65,28 @@ export default function BaseNode({
 
             <div
                 style={{
-                    padding: 10,
+                    padding: 12,
                 }}
             >
-                <div
-                    style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        marginBottom: 8,
-                    }}
-                >
-                    {icon}
-                </div>
+                {icon && (
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            marginBottom: 10,
+                        }}
+                    >
+                        {icon}
+                    </div>
+                )}
 
                 {subtitle && (
                     <div
                         style={{
                             textAlign: "center",
+                            color: "#555",
                             fontSize: 12,
-                            color: "#666",
+                            marginBottom: 8,
                         }}
                     >
                         {subtitle}
@@ -92,9 +96,9 @@ export default function BaseNode({
                 {power !== undefined && (
                     <div
                         style={{
-                            marginTop: 10,
                             textAlign: "center",
-                            fontWeight: 600,
+                            fontWeight: "bold",
+                            marginTop: 6,
                         }}
                     >
                         RX: {power.toFixed(2)} dBm

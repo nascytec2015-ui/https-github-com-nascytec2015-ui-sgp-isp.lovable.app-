@@ -48,8 +48,10 @@ export default function FTTHFlow({
         data: {
             label: n.label,
             tipo: n.type,
+            modelo: n.modelo,
+            fabricante: n.fabricante,
             tx: powers?.tx?.[n.id] ?? 3,
-            power: powers?.rx?.[n.id] ?? null,
+            power: powers?.rx?.[n.id],
         },
         type: n.type,
     }));
