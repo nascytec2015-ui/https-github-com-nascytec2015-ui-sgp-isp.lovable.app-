@@ -17,7 +17,10 @@ import OltNode from "./nodes/OltNode";
 
 const nodeTypes = {
     olt: OltNode,
+    splitter: SplitterNode,
 };
+
+import SplitterNode from "./nodes/SplitterNode";
 
 import {
     canConnect
@@ -50,6 +53,7 @@ export default function FTTHFlow({
             tipo: n.type,
             modelo: n.modelo,
             fabricante: n.fabricante,
+            portasSaida: n.portasSaida,
             tx: powers?.tx?.[n.id] ?? 3,
             power: powers?.rx?.[n.id],
         },
