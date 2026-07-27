@@ -7,35 +7,39 @@ export type FTTHNodeType =
     | "ceo"
     | "cliente";
 
+export type SignalStatus =
+    | "ok"
+    | "warning"
+    | "critical";
+
 export interface FTTHNodeData {
     id: string;
-
     type: FTTHNodeType;
 
     label: string;
 
     modelo?: string;
-
     fabricante?: string;
 
-    portas?: number;
+    x: number;
+    y: number;
 
+    portas?: number;
+    portasUsadas?: number;
     portasSaida?: number;
 
-    portasUsadas?: number;
-
     tx?: number;
-
     rx?: number;
 
-    status?: "ok" | "warning" | "critical";
+    perda?: number;
+
+    status?: SignalStatus;
 }
 
 export interface FTTHEdgeData {
     id: string;
 
     from: string;
-
     to: string;
 
     tipo?: "feeder" | "distribuicao" | "drop";
@@ -43,4 +47,9 @@ export interface FTTHEdgeData {
     comprimento?: number;
 
     perda?: number;
+}
+
+export interface FTTHDiagram {
+    nodes: FTTHNodeData[];
+    edges: FTTHEdgeData[];
 }
