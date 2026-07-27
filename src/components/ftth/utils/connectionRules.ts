@@ -1,49 +1,44 @@
-export type FTTHNodeType =
-    | "olt"
-    | "splitter"
-    | "dio"
-    | "caixa"
-    | "cto"
-    | "cliente";
-
+import type { FTTHNodeType } from "../types/ftth";
 
 export const connectionRules: Record<
     FTTHNodeType,
     FTTHNodeType[]
 > = {
+
     olt: [
         "splitter"
     ],
 
-
     splitter: [
         "splitter",
         "caixa",
-        "cto"
+        "cto",
+        "dio"
     ],
-
 
     caixa: [
-        "cto"
+        "cto",
+        "dio"
     ],
 
+    dio: [
+        "splitter",
+        "cto"
+    ],
 
     cto: [
         "cliente"
     ],
 
+    ceo: [],
 
-    cliente: [],
-    dio: []
+    cliente: []
+
 };
-
 
 export function canConnect(
     source: FTTHNodeType,
     target: FTTHNodeType
 ) {
-
-    return connectionRules[source]
-        ?.includes(target);
-
+    return connectionRules[source]?.includes(target) ?? false;
 }
