@@ -8,67 +8,87 @@ export interface GraphNode {
 
 export class Graph {
 
-    private map = new Map<string, GraphNode>();
-
-    constructor(diagram: FTTHDiagram) {
-
-        // Cria os nós
-        diagram.nodes.forEach(node => {
-
-            this.map.set(node.id, {
-                node,
-                children: []
-            });
-
-        });
-
-        // Liga os nós
-        diagram.edges.forEach(edge => {
-
-            const source = this.map.get(edge.from);
-            const target = this.map.get(edge.to);
-
-            if (!source || !target)
-                return;
-
-            source.children.push(target.node.id);
-
-            target.parent = source.node.id;
-
-        });
-
-    }
-
-    getNode(id: string) {
-        return this.map.get(id);
-    }
-
-    getChildren(id: string) {
-
-        return this.map
-            .get(id)
-            ?.children
-            .map(child => this.map.get(child))
-            .filter(Boolean) as GraphNode[];
-
-    }
-
-    getParent(id: string) {
-
-        const node = this.map.get(id);
-
-        if (!node?.parent)
-            return undefined;
-
-        return this.map.get(node.parent);
-
-    }
+    ...
 
     getRootNodes() {
-
         return [...this.map.values()]
             .filter(n => !n.parent);
+    }
 
+    getAncestors(id: string): string[] {
+
+        const result: string[] = [];
+
+        let current = this.getParent(id);
+
+        while (current) {
+            result.push(current.node.id);
+            current = this.getParent(current.node.id);
+        }
+
+        return result;
+    }
+
+    getDescendants(id: string): string[] {
+
+        const result: string[] = [];
+
+        const visit = (nodeId: string) => {
+
+            const children = this.getChildren(nodeId);
+
+            for (const child of children) {
+                result.push(child.node.id);
+                visit(child.node.id);
+            }
+
+        };
+
+        visit(id);
+
+        return result;
+    }
+
+    detectCycles(): boolean {
+
+        const visited = new Set<string>();
+        const stack = new Set<string>();
+
+        const visit = (id: string): boolean => {
+
+            if (stack.has(id))
+                return true;
+
+            if (visited.has(id))
+                return false;
+
+            visited.add(id);
+
+            stack.add(id);
+
+            const children = this.getChildren(id);
+
+            for (const child of children) {
+
+                if (visit(child.node.id))
+                    return true;
+
+            }
+
+            stack.delete(id);
+
+            return false;
+
+        };
+
+        for (const node of this.getRootNodes()) {
+
+            if (visit(node.node.id))
+                return true;
+
+        }
+
+        return false;
     }
 
 }
