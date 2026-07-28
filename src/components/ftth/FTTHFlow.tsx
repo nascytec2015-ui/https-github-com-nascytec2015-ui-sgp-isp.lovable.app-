@@ -8,7 +8,6 @@ import ReactFlow, {
     MiniMap,
     Node,
     Edge,
-    addEdge,
 } from "reactflow";
 
 import "reactflow/dist/style.css";
@@ -18,6 +17,7 @@ import OltNode from "./nodes/OltNode";
 const nodeTypes = {
     olt: OltNode,
     splitter: SplitterNode,
+    cto: CtoNode,
 };
 
 import SplitterNode from "./nodes/SplitterNode";
@@ -27,6 +27,8 @@ import {
 } from "./utils/connectionRules";
 
 import CtoNode from "./nodes/CtoNode";
+
+import { signalColor } from "./utils/signalColor";
 
 interface FTTHFlowProps {
     diagram: any;
@@ -58,8 +60,11 @@ export default function FTTHFlow({
             portas: n.portas,
             portasUsadas: n.portasUsadas,
             portasSaida: n.portasSaida,
-            tx: powers?.tx?.[n.id] ?? 3,
-            power: powers?.rx?.[n.id],
+            tx: powers[n.id],
+            power: powers[n.id],
+            status: signalColor(
+                powers[n.id]
+            )
         },
         type: n.type,
     }));

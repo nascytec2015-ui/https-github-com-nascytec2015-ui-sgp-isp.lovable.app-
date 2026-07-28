@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,36 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import FTTHFlow from "@/components/ftth/FTTHFlow";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { OpticalEngine } from "@/components/ftth/engine/OpticalEngine";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog";
+import type { FTTHDiagram } from "@/components/ftth/types/ftth";
 import { toast } from "sonner";
-import {
-  Plus,
-  Trash2,
-  Save,
-  Printer,
-  Download,
-  ArrowLeft,
-  Link2,
-  MousePointer2,
-  Upload,
-  Image as ImageIcon,
-  AlertTriangle,
-  Wand2,
-} from "lucide-react";
+import { Plus, Trash2, Save, Printer, Download, ArrowLeft, Link2, MousePointer2, Upload, Image as ImageIcon, AlertTriangle, Wand2,} from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/ftth")({
   component: FtthPage,
@@ -229,12 +205,15 @@ function confLabel(c: number | undefined): string {
 }
 
 // ---------------- Main component ----------------
-function FtthPage() {
+export default function FtthPage() {
   const [projetos, setProjetos] = useState<Projeto[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Projeto | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [novoNome, setNovoNome] = useState("");
+  const [diagram, setDiagram] = useState<FTTHDiagram>({ nodes: [], edges: [], });
+  const powers = useMemo(() => { return OpticalEngine.calculate(diagram);
+  }, [diagram]);
 
   async function load() {
     setLoading(true);
@@ -411,8 +390,6 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const dragRef = useRef<{ id: string; dx: number; dy: number } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-
-  const powers = useMemo(() => calcPowers(diagram, oltTx), [diagram, oltTx]);
 
   function addNode(type: NodeType) {
     const position = nextPositionFor(type, diagram);
