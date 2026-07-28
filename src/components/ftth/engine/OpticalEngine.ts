@@ -10,39 +10,48 @@ const SPLITTER_LOSS: Record<number, number> = {
     64: 20.5,
 };
 
-const FIBER_LOSS_PER_KM = 0.35;
 const SPLICE_LOSS = 0.1;
 const CONNECTOR_LOSS = 0.2;
 
+export interface OpticalResult {
+    tx: Record<string, number>;
+    rx: Record<string, number>;
+}
+
 export class OpticalEngine {
-    static calculate(diagram: FTTHDiagram) {
+    static calculate(diagram: FTTHDiagram): OpticalResult {
 
         const graph = new Graph(diagram);
 
-        const powers: Record<string, number> = {};
+        const tx: Record<string, number> = {};
+        const rx: Record<string, number> = {};
 
         for (const root of graph.getRootNodes()) {
-
             this.walk(
                 graph,
                 root.node.id,
                 root.node.tx ?? 3,
-                powers
+                tx,
+                rx
             );
-
         }
 
-        return powers;
+        return {
+            tx,
+            rx,
+        };
     }
 
     private static walk(
         graph: Graph,
         nodeId: string,
         currentPower: number,
-        powers: Record<string, number>
+        tx: Record<string, number>,
+        rx: Record<string, number>
     ) {
 
-        powers[nodeId] = currentPower;
+        rx[nodeId] = currentPower;
+        tx[nodeId] = currentPower;
 
         const children = graph.getChildren(nodeId);
 
@@ -53,41 +62,32 @@ export class OpticalEngine {
             switch (child.node.type) {
 
                 case "splitter":
-
                     power -= SPLITTER_LOSS[
                         child.node.portasSaida ?? 8
                     ] ?? 10.5;
-
                     break;
 
                 case "caixa":
-
+                case "emenda":
                     power -= SPLICE_LOSS;
-
                     break;
 
                 case "cto":
-
                     power -= CONNECTOR_LOSS;
-
                     break;
 
                 case "cliente":
-
                     power -= CONNECTOR_LOSS;
-
                     break;
-
             }
 
             this.walk(
                 graph,
                 child.node.id,
                 power,
-                powers
+                tx,
+                rx
             );
-
         }
-
     }
 }
