@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1293,21 +1293,32 @@ function rebuildEdges(nodes: FNode[]): FEdge[] {
 }
 
 function renderPowerTable(
-  d: Diagram,
-  powers: { rx: Record<string, number>; tx: Record<string, number> },
+  diagram: FTTHDiagram,
+  powers: Record<string, number>
 ) {
-  if (!d.nodes.length) return "";
-  const rows = d.nodes
-    .map((n) => {
-      const rx = powers.rx[n.id];
-      const tx = powers.tx[n.id];
-      return `<tr>
-      <td>${escapeHtml(n.label)}</td>
-      <td>${NODE_LABEL[n.type]}${n.type === "splitter" ? ` 1x${n.ratio}` : ""}</td>
-      <td>${rx !== undefined ? rx.toFixed(2) + " dBm" : "—"}</td>
-      <td>${tx !== undefined ? tx.toFixed(2) + " dBm" : "—"}</td>
-    </tr>`;
-    })
-    .join("");
-  return `<table><thead><tr><th>Nó</th><th>Tipo</th><th>Sinal RX</th><th>Saída TX</th></tr></thead><tbody>${rows}</tbody></table>`;
+  return `
+    <table>
+      <thead>
+        <tr>
+          <th>Equipamento</th>
+          <th>Tipo</th>
+          <th>Potência (dBm)</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${diagram.nodes
+      .map(
+        (node) => `
+            <tr>
+              <td>${node.label}</td>
+              <td>${node.type}</td>
+              <td>${powers[node.id]?.toFixed(2) ?? "-"}</td>
+            </tr>
+          `
+      )
+      .join("")}
+      </tbody>
+    </table>
+  `;
 }
+
