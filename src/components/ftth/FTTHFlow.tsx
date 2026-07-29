@@ -1,14 +1,6 @@
-import React, {
-    useCallback
-} from "react";
+import React, { useCallback } from "react";
 
-import ReactFlow, {
-    Background,
-    Controls,
-    MiniMap,
-    Node,
-    Edge,
-} from "reactflow";
+import ReactFlow, { Background, Controls, MiniMap, Node, Edge, } from "reactflow";
 
 import "reactflow/dist/style.css";
 
@@ -16,20 +8,10 @@ import OltNode from "./nodes/OltNode";
 
 const nodeTypes = {
     olt: OltNode,
-    splitter: SplitterNode,
-    cto: CtoNode,
-    dio: DioNode,
+    
 };
 
-import SplitterNode from "./nodes/SplitterNode";
-
-import {
-    canConnect
-} from "./utils/connectionRules";
-
-import CtoNode from "./nodes/CtoNode";
-
-import DioNode from "./nodes/DioNode";
+import { canConnect } from "./utils/connectionRules";
 
 import { signalColor } from "./utils/signalColor";
 
