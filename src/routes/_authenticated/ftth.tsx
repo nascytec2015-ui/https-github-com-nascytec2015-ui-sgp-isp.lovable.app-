@@ -22,28 +22,41 @@ export const Route = createFileRoute("/_authenticated/ftth")({
 // ---------------- Types ----------------
 type NodeType = "olt" | "dio" | "splitter" | "cto" | "emenda" | "cliente";
 
-interface FNode {
+export interface FNode {
   id: string;
   type: NodeType;
   label: string;
+
   x: number;
   y: number;
-  // splitter ratio: 2,4,8,16,32
+
+  tx?: number;
+
+  // Splitter
   ratio?: number;
-  // optional extra loss (e.g., emenda)
+  portasSaida?: number;
+
+  // Emenda
   extra_loss_db?: number;
-  // Auto-recognition metadata (only present for nodes created via SVG import)
-  recog_confidence?: number; // 0..1
-  recog_source?: "text" | "shape" | "fallback";
+
+  // CTO / DIO
+  capacidade?: number;
+  portas?: number;
+  ocupadas?: number;
+
+  // Reconhecimento SVG
+  recog_confidence?: number;
+  recog_source?: string;
   recog_issues?: string[];
 }
 
-interface FEdge {
+export interface FEdge {
+  [x: string]: any;
   id: string;
   from: string;
   to: string;
-  length_m: number; // fiber length in meters
-  connectors?: number; // number of connectors on this segment
+  length_m: number;
+  connectors: number;
 }
 
 interface Diagram {
@@ -449,6 +462,28 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
     toast.info("Clique no nó de destino para conectar");
   }
 
+  function nextFreePorta(ctoId: string) {
+
+    const usadas = diagram.edges
+      .filter(e => e.from === ctoId)
+      .map(e => e.porta)
+      .filter(Boolean) as number[];
+
+    const cto = diagram.nodes.find(n => n.id === ctoId);
+
+    const total = cto?.capacidade ?? 16;
+
+    for (let i = 1; i <= total; i++) {
+
+      if (!usadas.includes(i))
+        return i;
+
+    }
+
+    return null;
+
+  }
+
   function handleNodeClick(id: string) {
     if (linkFrom && linkFrom !== id) {
       // prevent cycles: target must not already have a parent
@@ -458,7 +493,41 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
         setLinkFrom(null);
         return;
       }
-      const newEdge: FEdge = { id: uid(), from: linkFrom, to: id, length_m: 100, connectors: 2 };
+      const source = diagram.nodes.find(n => n.id === linkFrom);
+
+      let porta: number | null = null;
+
+      if (source?.type === "cto") {
+
+        porta = nextFreePorta(source.id);
+
+        if (!porta) {
+
+          toast.error("Todas as portas da CTO estão ocupadas.");
+
+          setLinkFrom(null);
+
+          return;
+
+        }
+
+      }
+
+      const newEdge: FEdge = {
+
+        id: uid(),
+
+        from: linkFrom,
+
+        to: id,
+
+        length_m: 100,
+
+        connectors: 2,
+
+        porta
+
+      };
       setDiagram((d) => ({ ...d, edges: [...d.edges, newEdge] }));
       setLinkFrom(null);
       toast.success("Conectado");
@@ -938,6 +1007,51 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
                       }
                     />
                   </div>
+                )}
+                {selectedEdge && (
+                  <>
+                    <div>
+                      <Label className="text-xs">Comprimento (m)</Label>
+                      <Input
+                        type="number"
+                        value={selectedEdge.length_m}
+                        onChange={(e) =>
+                          updateEdge(selectedEdge.id, {
+                            length_m: Number(e.target.value),
+                          })
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="text-xs">Conectores</Label>
+                      <Input
+                        type="number"
+                        value={selectedEdge.connectors}
+                        onChange={(e) =>
+                          updateEdge(selectedEdge.id, {
+                            connectors: Number(e.target.value),
+                          })
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="text-xs">Porta da CTO</Label>
+                      <Input
+                        value={selectedEdge.porta ?? "-"}
+                        readOnly
+                      />
+                    </div>
+
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => deleteEdge(selectedEdge.id)}
+                    >
+                      Remover conexão
+                    </Button>
+                  </>
                 )}
                 <div className="text-xs space-y-1 bg-muted/40 rounded p-2">
                   <div>

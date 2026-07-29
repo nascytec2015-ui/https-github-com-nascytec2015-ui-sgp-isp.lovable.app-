@@ -37,6 +37,10 @@ export interface FTTHNodeData {
     fibrasLivres?: number;
 
     capacidade?: number;
+
+    portas?: number;
+
+    portasOcupadas?: number;
 }
 
 export interface FTTHEdgeData {
@@ -50,6 +54,12 @@ export interface FTTHEdgeData {
     comprimento?: number;
 
     perda?: number;
+
+    length_m: number;
+
+    connectors: number;
+
+    porta?: number;
 }
 
 export interface FTTHDiagram {
