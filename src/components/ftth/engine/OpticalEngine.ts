@@ -12,6 +12,7 @@ const SPLITTER_LOSS: Record<number, number> = {
 
 const SPLICE_LOSS = 0.1;
 const CONNECTOR_LOSS = 0.2;
+const DIO_LOSS = 0.2;
 
 export interface OpticalResult {
     tx: Record<string, number>;
@@ -68,7 +69,7 @@ export class OpticalEngine {
                     break;
 
                 case "dio":
-                    power -= CONNECTOR_LOSS;
+                    power -= DIO_LOSS;
                     break;
 
                 case "emenda":
