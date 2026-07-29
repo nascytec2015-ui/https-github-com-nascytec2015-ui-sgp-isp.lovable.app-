@@ -11,7 +11,7 @@ export default function DioNode({
     selected,
 }: NodeProps<DioNodeData>) {
 
-    const totalFibras = data.fibras || 24;
+    const totalFibras = data.fibras || 48;
 
     return (
         <div
@@ -42,7 +42,6 @@ export default function DioNode({
                 }}
             />
 
-
             <div
                 style={{
                     textAlign: "center",
@@ -65,8 +64,6 @@ export default function DioNode({
 
             </div>
 
-
-
             <div
                 style={{
                     background: "#020617",
@@ -86,8 +83,6 @@ export default function DioNode({
                 </span>
 
             </div>
-
-
 
             {
                 Array.from({
