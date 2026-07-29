@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/ftth")({
 });
 
 // ---------------- Types ----------------
-type NodeType = "olt" | "splitter" | "cto" | "emenda" | "cliente";
+type NodeType = "olt" | "dio" | "splitter" | "cto" | "emenda" | "cliente";
 
 interface FNode {
   id: string;
@@ -111,10 +111,11 @@ function nextPositionFor(type: NodeType, diagram: Diagram) {
   const byType = diagram.nodes.filter((node) => node.type === type).length;
   const columns: Record<NodeType, number> = {
     olt: 120,
-    splitter: 360,
-    emenda: 540,
-    cto: 720,
-    cliente: 980,
+    dio: 250,
+    splitter: 610,
+    emenda: 430,
+    cto: 790,
+    cliente: 1030,
   };
 
   return {
@@ -124,7 +125,7 @@ function nextPositionFor(type: NodeType, diagram: Diagram) {
 }
 
 function organizeDiagram(diagram: Diagram): Diagram {
-  const order: NodeType[] = ["olt", "splitter", "emenda", "cto", "cliente"];
+  const order: NodeType[] = ["olt", "dio", "splitter", "emenda", "cto", "cliente"];
   const grouped = new Map<NodeType, FNode[]>();
 
   for (const type of order) {
@@ -354,6 +355,7 @@ export default function FtthPage() {
 // ---------------- Editor ----------------
 const NODE_SIZE: Record<NodeType, { w: number; h: number }> = {
   olt: { w: 90, h: 60 },
+  dio: { w: 90, h: 60 },
   splitter: { w: 80, h: 50 },
   cto: { w: 80, h: 60 },
   emenda: { w: 70, h: 40 },
@@ -362,6 +364,7 @@ const NODE_SIZE: Record<NodeType, { w: number; h: number }> = {
 
 const NODE_COLOR: Record<NodeType, string> = {
   olt: "hsl(217 91% 60%)",
+  dio: "hsl(210 70% 35%)",
   splitter: "hsl(262 70% 60%)",
   cto: "hsl(28 90% 55%)",
   emenda: "hsl(190 70% 50%)",
@@ -370,6 +373,7 @@ const NODE_COLOR: Record<NodeType, string> = {
 
 const NODE_LABEL: Record<NodeType, string> = {
   olt: "OLT",
+  dio: "DIO",
   splitter: "Splitter",
   cto: "CTO",
   emenda: "Caixa de Emenda",
