@@ -18,6 +18,7 @@ const nodeTypes = {
     olt: OltNode,
     splitter: SplitterNode,
     cto: CtoNode,
+    dio: DioNode,
 };
 
 import SplitterNode from "./nodes/SplitterNode";
@@ -27,6 +28,8 @@ import {
 } from "./utils/connectionRules";
 
 import CtoNode from "./nodes/CtoNode";
+
+import DioNode from "./nodes/DioNode";
 
 import { signalColor } from "./utils/signalColor";
 
