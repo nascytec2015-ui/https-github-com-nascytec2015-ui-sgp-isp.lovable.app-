@@ -13,26 +13,30 @@ export type SignalStatus =
 
 export interface FTTHNodeData {
     id: string;
+
     type: FTTHNodeType;
 
     label: string;
 
-    modelo?: string;
-    fabricante?: string;
-
     x: number;
+
     y: number;
 
-    portas?: number;
-    portasUsadas?: number;
+    tx?: number;
+
+    ratio?: number;
+
+    portasEntrada?: number;
+
     portasSaida?: number;
 
-    tx?: number;
-    rx?: number;
+    fibrasEntrada?: number;
 
-    perda?: number;
+    fibrasSaida?: number;
 
-    status?: SignalStatus;
+    fibrasLivres?: number;
+
+    capacidade?: number;
 }
 
 export interface FTTHEdgeData {
