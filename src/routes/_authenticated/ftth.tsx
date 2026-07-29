@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import type { FTTHDiagram } from "@/components/ftth/types/ftth";
 import { toast } from "sonner";
 import { Plus, Trash2, Save, Printer, Download, ArrowLeft, Link2, MousePointer2, Upload, Image as ImageIcon, AlertTriangle, Wand2,} from "lucide-react";
+import { FiberEngine } from "@/components/ftth/engine/FiberEngine";
 
 export const Route = createFileRoute("/_authenticated/ftth")({
   component: FtthPage,
@@ -388,6 +389,10 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
     normalizeDiagram(projeto.data ?? { nodes: [], edges: [] }),
   );
   const powers = useMemo(() => OpticalEngine.calculate(diagram), [diagram]);
+  const fibers = useMemo(
+    () => FiberEngine.calculate(diagram),
+    [diagram]
+  );
   const [selNode, setSelNode] = useState<string | null>(null);
   const [selEdge, setSelEdge] = useState<string | null>(null);
   const [linkFrom, setLinkFrom] = useState<string | null>(null); // when set, click target to connect
@@ -948,6 +953,32 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
                     Saída:{" "}
                     <span className="font-mono">
                       {powers.tx[selectedNode.id]?.toFixed(2) ?? "—"} dBm
+                    </span>
+                  </div>
+                </div>
+                <div className="text-xs space-y-1 bg-muted/40 rounded p-2 mt-2">
+                  <div>
+                    <strong>Fibras</strong>
+                  </div>
+
+                  <div>
+                    Entrada:
+                    <span className="font-mono ml-1">
+                      {fibers[selectedNode.id]?.entrada ?? 0}
+                    </span>
+                  </div>
+
+                  <div>
+                    Saída:
+                    <span className="font-mono ml-1">
+                      {fibers[selectedNode.id]?.saida ?? 0}
+                    </span>
+                  </div>
+
+                  <div>
+                    Livres:
+                    <span className="font-mono ml-1">
+                      {fibers[selectedNode.id]?.livres ?? 0}
                     </span>
                   </div>
                 </div>
