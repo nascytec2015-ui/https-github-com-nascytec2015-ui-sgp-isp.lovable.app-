@@ -1,12 +1,10 @@
 export type FTTHNodeType =
-    | "olt"
-    | "splitter"
-    | "emenda"
-    | "caixa"
-    | "cto"
-    | "cliente"
-    | "dio"
-    | "ceo";
+  | "olt"
+  | "dio"
+  | "splitter"
+  | "emenda"
+  | "cto"
+  | "cliente";
 
 export type SignalStatus =
     | "ok"

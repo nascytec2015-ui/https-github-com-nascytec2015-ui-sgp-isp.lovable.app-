@@ -4,36 +4,30 @@ export const connectionRules: Record<
     FTTHNodeType,
     FTTHNodeType[]
 > = {
-
     olt: [
-        "splitter"
+        "dio",
+    ],
+
+    dio: [
+        "emenda",
+        "splitter",
+    ],
+
+    emenda: [
+        "splitter",
+        "cto",
     ],
 
     splitter: [
         "splitter",
-        "caixa",
         "cto",
-        "dio"
-    ],
-
-    caixa: [
-        "cto",
-        "dio"
-    ],
-
-    dio: [
-        "splitter",
-        "cto"
     ],
 
     cto: [
-        "cliente"
+        "cliente",
     ],
 
-    ceo: [],
-
-    cliente: []
-
+    cliente: [],
 };
 
 export function canConnect(

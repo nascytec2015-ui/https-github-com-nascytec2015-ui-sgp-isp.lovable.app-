@@ -67,7 +67,10 @@ export class OpticalEngine {
                     ] ?? 10.5;
                     break;
 
-                case "caixa":
+                case "dio":
+                    power -= CONNECTOR_LOSS;
+                    break;
+
                 case "emenda":
                     power -= SPLICE_LOSS;
                     break;
