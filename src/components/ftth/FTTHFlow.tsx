@@ -8,10 +8,16 @@ import OltNode from "./nodes/OltNode";
 
 import DioNode from "./nodes/DioNode";
 
+import SplitterNode from "./nodes/SplitterNode";
+
+import ClienteNode from "./nodes/ClienteNode";
+
 const nodeTypes = {
     olt: OltNode,
     dio: DioNode,
-    
+    splitter: SplitterNode,
+    cliente: ClienteNode,
+
 };
 
 import { canConnect } from "./utils/connectionRules";

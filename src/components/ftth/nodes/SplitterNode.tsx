@@ -1,36 +1,68 @@
 import React from "react";
-import BaseNode from "./BaseNode";
+import { Handle, Position } from "reactflow";
 
 interface SplitterNodeProps {
     data: {
         label?: string;
-        modelo?: string;
-        power?: number;
-        status?: "ok" | "warning" | "critical";
-        portasSaida?: number;
+        ratio?: number;
+        loss?: number;
     };
 }
 
-export default function SplitterNode({ data }: SplitterNodeProps) {
+export default function SplitterNode({
+    data
+}: SplitterNodeProps) {
+
+    const ratio = data.ratio || 8;
+
+    const loss = data.loss ??
+        ({
+            2: 3.5,
+            4: 7.2,
+            8: 10.5,
+            16: 13.5,
+            32: 17
+        }[ratio]);
+
+
     return (
-        <BaseNode
-            title="Splitter"
-            subtitle={data.modelo ?? data.label ?? "1x8"}
-            power={data.power}
-            status={data.status ?? "ok"}
-            inputs={1}
-            outputs={data.portasSaida ?? 8}
+        <div
+            style={{
+                width: 160,
+                padding: 12,
+                borderRadius: 10,
+                background: "#111827",
+                color: "#fff",
+                border: "2px solid #22c55e"
+            }}
         >
-            <div
-                style={{
-                    marginTop: 8,
-                    fontSize: 12,
-                    color: "#475569",
-                    textAlign: "center",
-                }}
-            >
-                Saídas: {data.portasSaida ?? 8}
+
+            <Handle
+                type="target"
+                position={Position.Left}
+            />
+
+
+            <strong>
+                {data.label || "Splitter"}
+            </strong>
+
+
+            <div>
+                Divisão: 1:{ratio}
             </div>
-        </BaseNode>
+
+
+            <div>
+                Perda: -{loss} dB
+            </div>
+
+
+            <Handle
+                type="source"
+                position={Position.Right}
+            />
+
+        </div>
     );
 }
