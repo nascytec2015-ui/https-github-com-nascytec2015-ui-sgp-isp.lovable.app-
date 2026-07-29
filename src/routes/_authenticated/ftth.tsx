@@ -276,7 +276,7 @@ export default function FtthPage() {
         <div>
           <h1 className="text-2xl font-semibold">Projetos FTTH</h1>
           <p className="text-sm text-muted-foreground">
-            Desenhe a rede óptica: OLT, splitters, CTOs, caixas de emenda e clientes. Cálculo de
+            Desenhe a rede óptica: OLT, DIO, splitters, CTOs, caixas de emenda e clientes. Cálculo de
             potência automático.
           </p>
         </div>
@@ -364,7 +364,7 @@ const NODE_SIZE: Record<NodeType, { w: number; h: number }> = {
 
 const NODE_COLOR: Record<NodeType, string> = {
   olt: "hsl(217 91% 60%)",
-  dio: "hsl(210 70% 35%)",
+  dio: "hsl(220 75% 45%)",
   splitter: "hsl(262 70% 60%)",
   cto: "hsl(28 90% 55%)",
   emenda: "hsl(190 70% 50%)",
@@ -750,7 +750,7 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
             <CardTitle className="text-sm">Adicionar elemento</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {(["splitter", "cto", "emenda", "cliente"] as NodeType[]).map((t) => (
+            {(["dio", "splitter", "cto", "emenda", "cliente"] as NodeType[]).map((t) => (
               <Button
                 key={t}
                 variant="outline"
@@ -1268,7 +1268,7 @@ function recognizeSvg(svgText: string): Diagram | null {
 
 // Build parent→child edges by topology rank + nearest-neighbour.
 function rebuildEdges(nodes: FNode[]): FEdge[] {
-  const order: NodeType[] = ["olt", "splitter", "emenda", "cto", "cliente"];
+  const order: NodeType[] = ["olt", "dio", "splitter", "emenda", "cto", "cliente"];
   const rank = (t: NodeType) => order.indexOf(t);
   const edges: FEdge[] = [];
   for (const n of nodes) {
