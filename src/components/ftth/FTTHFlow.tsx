@@ -6,8 +6,11 @@ import "reactflow/dist/style.css";
 
 import OltNode from "./nodes/OltNode";
 
+import DioNode from "./nodes/DioNode";
+
 const nodeTypes = {
     olt: OltNode,
+    dio: DioNode,
     
 };
 
