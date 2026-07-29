@@ -14,7 +14,7 @@ export default function OltNode({
     selected,
 }: NodeProps<OltNodeData>) {
 
-    const totalPortas = data.portas || 8;
+    const totalPortas = data.portas || 16;
 
     return (
         <div
