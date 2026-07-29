@@ -80,7 +80,7 @@ export default function OltNode({
                 TX:
                 <span style={{ color: "#22c55e" }}>
                     {" "}
-                    {data.tx ?? 3} dBm
+                    {data.tx ?? 0} dBm
                 </span>
 
                 <br />
