@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import FTTHFlow from "@/components/ftth/FTTHFlow";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { OpticalEngine } from "@/components/ftth/engine/OpticalEngine";
+import { OpticalEngine, type OpticalResult } from "@/components/ftth/engine/OpticalEngine";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog";
 import type { FTTHDiagram } from "@/components/ftth/types/ftth";
@@ -383,6 +383,7 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
   const [diagram, setDiagram] = useState<Diagram>(() =>
     normalizeDiagram(projeto.data ?? { nodes: [], edges: [] }),
   );
+  const powers = useMemo(() => OpticalEngine.calculate(diagram), [diagram]);
   const [selNode, setSelNode] = useState<string | null>(null);
   const [selEdge, setSelEdge] = useState<string | null>(null);
   const [linkFrom, setLinkFrom] = useState<string | null>(null); // when set, click target to connect
@@ -1294,7 +1295,7 @@ function rebuildEdges(nodes: FNode[]): FEdge[] {
 
 function renderPowerTable(
   diagram: FTTHDiagram,
-  powers: Record<string, number>
+  powers: OpticalResult
 ) {
   return `
     <table>
@@ -1312,7 +1313,9 @@ function renderPowerTable(
             <tr>
               <td>${node.label}</td>
               <td>${node.type}</td>
-              <td>${powers[node.id]?.toFixed(2) ?? "-"}</td>
+              <td>${powers.tx[node.id]?.toFixed(2) ?? "-"}</td>
+            </tr>
+            <td>${powers.rx[node.id]?.toFixed(2) ?? "-"}</td>
             </tr>
           `
       )
