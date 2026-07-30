@@ -21,6 +21,7 @@ export const Route = createFileRoute("/_authenticated/ftth")({
 
 // ---------------- Types ----------------
 type NodeType = "olt" | "dio" | "splitter" | "cto" | "emenda" | "cliente";
+type SplitterRatio = 2 | 4 | 8 | 16 | 32 | 64;
 
 export interface FNode {
   
@@ -34,6 +35,7 @@ export interface FNode {
   tx?: number;
 
   // Splitter
+  
   ratio?: 2 | 4 | 8 | 16 | 32 | 64;
   portasSaida?: 2 | 4 | 8 | 16 | 32 | 64;
 
@@ -981,7 +983,11 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
                     <Label className="text-xs">Razão</Label>
                     <Select
                       value={String(selectedNode.ratio ?? 8)}
-                      onValueChange={(v) => updateNode(selectedNode.id, { ratio: Number(v) })}
+                      onValueChange={(v) =>
+                        updateNode(selectedNode.id, {
+                          ratio: Number(v) as SplitterRatio,
+                        })
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -1241,9 +1247,9 @@ function escapeHtml(s: string) {
 // ---------------- Auto-recognition ----------------
 type ClassifyResult = {
   type: NodeType;
-  ratio?: number;
-  confidence: number; // 0..1 — how sure we are about (type, ratio)
-  issues?: string[]; // human-readable warnings
+  ratio?: SplitterRatio;
+  confidence: number;
+  issues?: string[];
 };
 function classifyHint(t: string): ClassifyResult | null {
   const s = (t || "").trim();
@@ -1251,7 +1257,13 @@ function classifyHint(t: string): ClassifyResult | null {
   const m = s.match(/(?:spl(?:itter)?|sp)\D*1\s*[x×:]\s*(\d+)/i);
   if (m) {
     const r = Number(m[1]);
-    if ([2, 4, 8, 16, 32].includes(r)) return { type: "splitter", ratio: r, confidence: 0.95 };
+    if ([2, 4, 8, 16, 32].includes(r)) {
+      return {
+        type: "splitter",
+        ratio: Number(r) as SplitterRatio,
+        confidence: 0.95
+      };
+    }
     return {
       type: "splitter",
       ratio: 8,
@@ -1402,7 +1414,7 @@ function recognizeSvg(svgText: string): Diagram | null {
     label: m.label || NODE_LABEL[m.type],
     x: Math.max(40, Math.min(1160, m.x)),
     y: Math.max(40, Math.min(660, m.y)),
-    ...(m.type === "splitter" ? { ratio: m.ratio ?? 8 } : {}),
+    ...(m.type === "splitter" ? { ratio: (m.ratio ?? 8) as SplitterRatio } : {}),
     ...(m.type === "emenda" ? { extra_loss_db: SPLICE_LOSS } : {}),
     recog_confidence: m.confidence,
     recog_source: m.source,
