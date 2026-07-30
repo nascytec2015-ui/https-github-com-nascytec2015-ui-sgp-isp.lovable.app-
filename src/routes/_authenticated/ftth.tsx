@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import FTTHFlow from "@/components/ftth/FTTHFlow";
+import FTTHFlow from "@/components/ftth/flow/FTTHFlow";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OpticalEngine, type OpticalResult } from "@/components/ftth/engine/OpticalEngine";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
