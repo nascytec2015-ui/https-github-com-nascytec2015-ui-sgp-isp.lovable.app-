@@ -4,13 +4,13 @@ import ReactFlow, { Background, Controls, MiniMap, Node, Edge, } from "reactflow
 
 import "reactflow/dist/style.css";
 
-import OltNode from "./nodes/OltNode";
+import OltNode from "../nodes/OltNode";
 
-import DioNode from "./nodes/DioNode";
+import DioNode from "../nodes/DioNode";
 
-import SplitterNode from "./nodes/SplitterNode";
+import SplitterNode from "../nodes/SplitterNode";
 
-import ClienteNode from "./nodes/ClienteNode";
+import ClienteNode from "../nodes/ClienteNode";
 
 const nodeTypes = {
     olt: OltNode,
@@ -20,9 +20,9 @@ const nodeTypes = {
 
 };
 
-import { canConnect } from "./utils/connectionRules";
+import { canConnect } from "../utils/connectionRules";
 
-import { signalColor } from "./utils/signalColor";
+import { signalColor } from "../utils/signalColor";
 
 interface FTTHFlowProps {
     diagram: any;
