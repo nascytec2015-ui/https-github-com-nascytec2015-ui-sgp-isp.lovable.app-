@@ -1,41 +1,80 @@
 import React from "react";
 import { Handle, Position } from "reactflow";
 
+
 interface SplitterNodeProps {
+
     data: {
+
         label?: string;
-        ratio?: number;
+
+        portasSaida?:
+        2 |
+        4 |
+        8 |
+        16 |
+        32 |
+        64;
+
         loss?: number;
+
     };
+
 }
+
+
+
+const SPLITTER_LOSS = {
+
+    2: 3.5,
+    4: 7.2,
+    8: 10.5,
+    16: 13.5,
+    32: 17,
+    64: 20.5,
+
+};
+
+
 
 export default function SplitterNode({
     data
 }: SplitterNodeProps) {
 
-    const ratio = data.ratio || 8;
 
-    const loss = data.loss ??
-        ({
-            2: 3.5,
-            4: 7.2,
-            8: 10.5,
-            16: 13.5,
-            32: 17
-        }[ratio]);
+    const ratio =
+        data.portasSaida ?? 8;
+
+
+
+    const loss =
+        data.loss ??
+        SPLITTER_LOSS[ratio];
+
 
 
     return (
+
         <div
             style={{
+
                 width: 160,
+
                 padding: 12,
+
                 borderRadius: 10,
+
                 background: "#111827",
+
                 color: "#fff",
-                border: "2px solid #22c55e"
+
+                border: "2px solid #22c55e",
+
+                textAlign: "center"
+
             }}
         >
+
 
             <Handle
                 type="target"
@@ -43,26 +82,42 @@ export default function SplitterNode({
             />
 
 
+
             <strong>
-                {data.label || "Splitter"}
+                {data.label ?? "Splitter"}
             </strong>
 
 
+
             <div>
-                Divisão: 1:{ratio}
+
+                1:{ratio}
+
             </div>
 
 
+
             <div>
-                Perda: -{loss} dB
+
+                Loss:
+                {" "}
+                -{loss} dB
+
             </div>
+
 
 
             <Handle
+
                 type="source"
+
                 position={Position.Right}
+
             />
 
+
         </div>
+
     );
+
 }

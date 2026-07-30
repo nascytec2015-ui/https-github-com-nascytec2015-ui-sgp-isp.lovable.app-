@@ -23,6 +23,7 @@ export const Route = createFileRoute("/_authenticated/ftth")({
 type NodeType = "olt" | "dio" | "splitter" | "cto" | "emenda" | "cliente";
 
 export interface FNode {
+  ratio: number;
   id: string;
   type: NodeType;
   label: string;
@@ -33,8 +34,8 @@ export interface FNode {
   tx?: number;
 
   // Splitter
-  ratio?: number;
-  portasSaida?: number;
+
+  portasSaida?: 2 | 4 | 8 | 16 | 32 | 64;
 
   // Emenda
   extra_loss_db?: number;

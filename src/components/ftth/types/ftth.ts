@@ -24,8 +24,6 @@ export interface FTTHNodeData {
 
     tx?: number;
 
-    ratio?: number;
-
     portasEntrada?: number;
 
     portasSaida?: number;

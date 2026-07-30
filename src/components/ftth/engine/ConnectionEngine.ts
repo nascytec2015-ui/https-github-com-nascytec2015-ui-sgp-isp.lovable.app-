@@ -21,20 +21,22 @@ export class ConnectionEngine {
     ): FTTHEdgeData {
 
         return {
+    id: crypto.randomUUID(),
 
-            id: crypto.randomUUID(),
+    from: source.id,
 
-            from: source.id,
+    to: target.id,
 
-            to: target.id,
+    tipo: "distribuicao",
 
-            tipo: "distribuicao",
+    comprimento: 0,
 
-            comprimento: 0,
-
-            perda: 0
-
-        };
+    perda: 0,
+   
+    length_m: 0,
+    
+    connectors: 0
+};
 
     }
 
