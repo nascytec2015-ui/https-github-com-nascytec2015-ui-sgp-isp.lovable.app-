@@ -87,7 +87,7 @@ const SPLITTER_LOSS: Record<number, number> = {
 };
 const FIBER_LOSS_PER_KM = 0.35; // dB/km @ 1310nm
 const CONNECTOR_LOSS = 0.3; // per connector
-const SPLICE_LOSS = 0.1; // emenda default
+const SPLITTER_LOSS = 0.1; // emenda default
 const CANVAS_W = 1200;
 const CANVAS_H = 700;
 const CANVAS_PAD = 36;
@@ -194,7 +194,7 @@ function calcPowers(diagram: Diagram, oltTx: number) {
       if (!child) continue;
       let loss = 0;
       if (child.type === "splitter" && child.ratio) loss = SPLITTER_LOSS[child.ratio] ?? 0;
-      if (child.type === "emenda") loss = child.extra_loss_db ?? SPLICE_LOSS;
+      if (child.type === "emenda") loss = child.extra_loss_db ?? SPLITTER_LOSS;
       tx[child.id] = childRx - loss;
       visit(child.id);
     }
@@ -426,7 +426,7 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
       x: position.x,
       y: position.y,
       ...(type === "splitter" ? { ratio: 8 } : {}),
-      ...(type === "emenda" ? { extra_loss_db: SPLICE_LOSS } : {}),
+      ...(type === "emenda" ? { extra_loss_db: SPLITTER_LOSS } : {}),
     };
     setDiagram((d) => ({ ...d, nodes: [...d.nodes, n] }));
     setSelNode(n.id);
@@ -1008,7 +1008,7 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
                     <Input
                       type="number"
                       step="0.1"
-                      value={selectedNode.extra_loss_db ?? SPLICE_LOSS}
+                      value={selectedNode.extra_loss_db ?? SPLITTER_LOSS}
                       onChange={(e) =>
                         updateNode(selectedNode.id, { extra_loss_db: Number(e.target.value) })
                       }
@@ -1280,7 +1280,7 @@ function classifyHint(t: string): ClassifyResult | null {
       issues: ["Splitter sem razão explícita — assumido 1x8"],
     };
   if (/\bcto\b|terminal[\s_-]*[oó]ptic/i.test(s)) return { type: "cto", confidence: 0.9 };
-  if (/emenda|splice|\bceo\b/i.test(s)) return { type: "emenda", confidence: 0.9 };
+  if (/emenda|splitter|\bceo\b/i.test(s)) return { type: "emenda", confidence: 0.9 };
   if (/caixa/i.test(s))
     return {
       type: "emenda",
@@ -1415,7 +1415,7 @@ function recognizeSvg(svgText: string): Diagram | null {
     x: Math.max(40, Math.min(1160, m.x)),
     y: Math.max(40, Math.min(660, m.y)),
     ...(m.type === "splitter" ? { ratio: (m.ratio ?? 8) as SplitterRatio } : {}),
-    ...(m.type === "emenda" ? { extra_loss_db: SPLICE_LOSS } : {}),
+    ...(m.type === "emenda" ? { extra_loss_db: SPLITTER_LOSS } : {}),
     recog_confidence: m.confidence,
     recog_source: m.source,
     recog_issues: m.issues && m.issues.length ? m.issues : undefined,

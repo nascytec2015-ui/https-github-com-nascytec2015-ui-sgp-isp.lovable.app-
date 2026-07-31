@@ -1,8 +1,8 @@
 export type NodeKind =
     | "olt"
     | "splitter"
+    | "emenda"
     | "cto"
-    | "splice"
     | "cliente";
 
 export type SplitterRatio = 2 | 4 | 8 | 16 | 32;
@@ -42,10 +42,10 @@ export function recognizeNode(text: string): RecognitionResult | null {
 
     if (
         t.includes("emenda") ||
-        t.includes("splice")
+        t.includes("splitter")
     )
         return {
-            type: "splice",
+            type: "splitter",
             confidence: 0.97,
         };
 
