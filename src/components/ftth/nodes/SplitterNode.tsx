@@ -22,20 +22,13 @@ interface SplitterNodeProps {
 
 }
 
-
-
-const SPLITTER_LOSS = {
-
+const SPLITTER_LOSS: Record<number, number> = {
     2: 3.5,
     4: 7.2,
     8: 10.5,
     16: 13.5,
-    32: 17,
-    64: 20.5,
-
+    32: 17
 };
-
-
 
 export default function SplitterNode({
     data
@@ -50,8 +43,6 @@ export default function SplitterNode({
     const loss =
         data.loss ??
         SPLITTER_LOSS[ratio];
-
-
 
     return (
 

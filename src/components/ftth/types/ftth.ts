@@ -13,6 +13,8 @@ export type SignalStatus =
     | "warning"
     | "critical";
 
+export type RecognitionSource = string;
+
 export interface FTTHNodeData {
     id: string;
     type: FTTHNodeType;
@@ -33,7 +35,7 @@ export interface FTTHNodeData {
     extra_loss_db?: number;
 
     recog_confidence?: number;
-    recog_source?: "text" | "shape";
+    recog_source?: RecognitionSource
     signalStatus?: SignalStatus;
 }
 

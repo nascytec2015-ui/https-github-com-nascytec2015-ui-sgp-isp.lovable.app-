@@ -2,13 +2,12 @@ import { FTTHDiagram, FTTHNodeData } from "../types/ftth";
 
 import { Graph } from "../utils/graph";
 
-const SPLITTER_LOSS: Record<number, number> = {
+export const SPLITTER_LOSS: Record<number, number> = {
     2: 3.5,
     4: 7.2,
     8: 10.5,
     16: 13.5,
-    32: 17,
-    64: 20.5,
+    32: 17.0
 };
 
 const EMENDA_LOSS = 0.1;
@@ -82,7 +81,7 @@ export class OpticalEngine {
                 outPower -=
                     SPLITTER_LOSS[
                 node.ratio ?? 8
-                    ] ?? 10.5;
+                    ] ?? 0;
 
                 break;
 
