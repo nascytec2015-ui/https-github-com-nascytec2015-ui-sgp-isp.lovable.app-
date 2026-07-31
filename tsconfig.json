@@ -15,7 +15,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
@@ -30,6 +29,7 @@
     "src",
     "vite.config.ts",
     "capacitor.config.ts",
-    "prisma.config.ts"
+    "prisma.config.ts",
+    "ignoreDeprecations","6.0",
   ]
 }
