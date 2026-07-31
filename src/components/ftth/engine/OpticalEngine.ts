@@ -11,7 +11,7 @@ const SPLITTER_LOSS: Record<number, number> = {
     64: 20.5,
 };
 
-const SPLITTER_LOSS = 0.1;
+const SPLICE_LOSS = 0.1;
 const CONNECTOR_LOSS = 0.2;
 const DIO_LOSS = 0.2;
 
@@ -96,7 +96,7 @@ export class OpticalEngine {
 
             case "emenda":
 
-                outPower -= SPLITTER_LOSS;
+                outPower -= SPLICE_LOSS;
 
                 break;
 
