@@ -12,6 +12,7 @@ export type SignalStatus =
     | "critical";
 
 export interface FTTHNodeData {
+
     id: string;
 
     type: FTTHNodeType;
@@ -19,26 +20,22 @@ export interface FTTHNodeData {
     label: string;
 
     x: number;
-
     y: number;
 
     tx?: number;
+    rx?: number;
 
-    portasEntrada?: number;
+    ratio?: 2 | 4 | 8 | 16 | 32;
 
-    portasSaida?: number;
+    extra_loss_db?: number;
 
-    fibrasEntrada?: number;
+    recog_confidence?: number;
 
-    fibrasSaida?: number;
+    recog_source?: "text" | "shape";
 
-    fibrasLivres?: number;
+    signalStatus?: SignalStatus;
 
-    capacidade?: number;
-
-    portas?: number;
-
-    portasOcupadas?: number;
+    // ... os demais campos que você já possui
 }
 
 export interface FTTHEdgeData {
