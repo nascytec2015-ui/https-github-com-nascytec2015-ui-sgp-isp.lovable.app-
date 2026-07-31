@@ -26,6 +26,8 @@ export interface FTTHNodeData {
 
     ratio?: SplitterRatio;
 
+    capacidade?: number;
+ 
     portasSaida?: number;
 
     extra_loss_db?: number;
