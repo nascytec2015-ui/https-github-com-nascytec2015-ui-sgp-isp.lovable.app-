@@ -85,6 +85,14 @@ const EMENDA_LOSS: Record<number, number> = {
   16: 13.5,
   32: 17.0,
 };
+
+const SPLITTER_LOSS: Record<number, number> = {
+  2: 3.5,
+  4: 7.2,
+  8: 10.5,
+  16: 13.5,
+  32: 17
+};
 const FIBER_LOSS_PER_KM = 0.35; // dB/km @ 1310nm
 const CONNECTOR_LOSS = 0.3; // per connector
 const SPLICE_LOSS = 0.1; // emenda default
@@ -995,7 +1003,7 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
                       <SelectContent>
                         {[2, 4, 8, 16, 32].map((r) => (
                           <SelectItem key={r} value={String(r)}>
-                            1x{r} (-{SPLICE_LOSS[r]} dB)
+                            1x{r} (-{SPLITTER_LOSS[r]} dB)
                           </SelectItem>
                         ))}
                       </SelectContent>
