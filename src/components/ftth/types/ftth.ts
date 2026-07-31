@@ -6,18 +6,16 @@ export type FTTHNodeType =
   | "cto"
   | "cliente";
 
+export type SplitterRatio = 2 | 4 | 8 | 16 | 32 | 64;
+
 export type SignalStatus =
     | "ok"
     | "warning"
     | "critical";
 
 export interface FTTHNodeData {
-    [x: string]: number;
-
     id: string;
-
     type: FTTHNodeType;
-
     label: string;
 
     x: number;
@@ -26,17 +24,15 @@ export interface FTTHNodeData {
     tx?: number;
     rx?: number;
 
-    ratio?: 2 | 4 | 8 | 16 | 32;
+    ratio?: SplitterRatio;
+
+    portasSaida?: number;
 
     extra_loss_db?: number;
 
     recog_confidence?: number;
-
     recog_source?: "text" | "shape";
-
     signalStatus?: SignalStatus;
-
-    // ... os demais campos que você já possui
 }
 
 export interface FTTHEdgeData {
