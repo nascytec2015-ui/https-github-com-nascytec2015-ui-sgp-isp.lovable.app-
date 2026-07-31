@@ -2,7 +2,7 @@ import { FTTHDiagram, FTTHNodeData } from "../types/ftth";
 
 import { Graph } from "../utils/graph";
 
-export const SPLITTER_LOSS: Record<number, number> = {
+const SPLITTER_LOSS: Record<number, number> = {
     2: 3.5,
     4: 7.2,
     8: 10.5,
