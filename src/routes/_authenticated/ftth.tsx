@@ -78,7 +78,7 @@ interface Projeto {
 }
 
 // ---------------- Constants ----------------
-const SPLITTER_LOSS: Record<number, number> = {
+const SPLICE_LOSS: Record<number, number> = {
   2: 3.5,
   4: 7.2,
   8: 10.5,
@@ -193,7 +193,7 @@ function calcPowers(diagram: Diagram, oltTx: number) {
       const child = diagram.nodes.find((n) => n.id === e.to);
       if (!child) continue;
       let loss = 0;
-      if (child.type === "splitter" && child.ratio) loss = SPLITTER_LOSS[child.ratio] ?? 0;
+      if (child.type === "splitter" && child.ratio) loss = SPLICE_LOSS[child.ratio] ?? 0;
       if (child.type === "emenda") loss = child.extra_loss_db ?? SPLITTER_LOSS;
       tx[child.id] = childRx - loss;
       visit(child.id);
