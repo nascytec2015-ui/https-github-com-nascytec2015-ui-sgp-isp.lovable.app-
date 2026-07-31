@@ -1,4 +1,4 @@
-import { FTTHNodeData, FTTHEdgeData, FTTHDiagram, } from "../../components/ftth/types/ftth";
+import { FTTHNodeData, FTTHEdgeData, FTTHDiagram, } from "../components/ftth/types/ftth";
 import { RecognitionResult } from "./OpticalRecognizer";
 
 export interface DetectedNode extends RecognitionResult {

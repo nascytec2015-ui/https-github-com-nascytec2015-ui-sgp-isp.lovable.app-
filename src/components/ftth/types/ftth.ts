@@ -12,6 +12,7 @@ export type SignalStatus =
     | "critical";
 
 export interface FTTHNodeData {
+    [x: string]: number;
 
     id: string;
 
