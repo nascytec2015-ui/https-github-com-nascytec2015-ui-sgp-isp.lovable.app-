@@ -4,21 +4,20 @@ import ReactFlow, { Background, Controls, MiniMap, Node, Edge, } from "reactflow
 
 import "reactflow/dist/style.css";
 
-import OltNode from "./nodes/OltNode";
-
-import DioNode from "./nodes/DioNode";
-
-import SplitterNode from "./nodes/SplitterNode";
-
-import ClienteNode from "./nodes/ClienteNode";
+import { FTTHDiagram, FTTHEdgeData, } from "./types/ftth";
 
 import RouterNode from "./nodes/RouterNode";
-
+import OltNode from "./nodes/OltNode";
+import DioNode from "./nodes/DioNode";
 import CeoNode from "./nodes/CeoNode";
-
+import SplitterNode from "./nodes/SplitterNode";
 import CtoNode from "./nodes/CtoNode";
-
+import ClienteNode from "./nodes/ClienteNode";
 import EmendaNode from "./nodes/EmendaNode";
+
+import { canConnect } from "./connectionRules";
+import { signalColor } from "./utils/signalColor";
+
 
 const nodeTypes = {
     router: RouterNode,
@@ -31,14 +30,10 @@ const nodeTypes = {
     emenda: EmendaNode,
 };
 
-import { canConnect } from "./connectionRules";
-
-import { signalColor } from "./utils/signalColor";
-
 interface FTTHFlowProps {
-    diagram: any;
-    setDiagram: React.Dispatch<React.SetStateAction<any>>;
-    powers: any;
+    diagram: FTTHDiagram;
+    setDiagram: React.Dispatch<React.SetStateAction<FTTHDiagram>>;
+    powers: Record<string, number>;
     onSelectNode: (id: string | null) => void;
     onSelectEdge: (id: string | null) => void;
 }
@@ -51,28 +46,31 @@ export default function FTTHFlow({
     onSelectEdge,
 }: FTTHFlowProps) {
 
-    const nodes: Node[] = (diagram.nodes ?? []).map((n: any) => ({
-        id: n.id,
-        position: {
-            x: n.x,
-            y: n.y,
-        },
-        data: {
-            label: n.label,
-            tipo: n.type,
-            modelo: n.modelo,
-            fabricante: n.fabricante,
-            portas: n.portas,
-            portasUsadas: n.portasUsadas,
-            portasSaida: n.portasSaida,
-            tx: powers[n.id],
-            power: powers[n.id],
-            status: signalColor(
-                powers[n.id]
-            )
-        },
-        type: n.type,
-    }));
+    const nodes: Node[] = (diagram.nodes ?? []).map((n: any) => {
+        const power = powers[n.id] ?? 0;
+
+        return {
+            id: n.id,
+            position: {
+                x: n.x,
+                y: n.y,
+            },
+            data: {
+                label: n.label,
+                tipo: n.type,
+                modelo: n.modelo,
+                fabricante: n.fabricante,
+                portas: n.portas,
+                portasUsadas: n.portasUsadas,
+                portasSaida: n.portasSaida,
+
+                tx: power,
+                power,
+                status: signalColor(power),
+            },
+            type: n.type,
+        };
+    });
 
     const edges: Edge[] = (diagram.edges ?? []).map((e: any) => ({
         id: e.id,
@@ -114,27 +112,27 @@ export default function FTTHFlow({
                 return;
             }
 
-            const novaEdge = {
+            const novaEdge: FTTHEdgeData = {
+                id: `${params.source}-${params.target}`,
+                from: params.source,
+                to: params.target,
 
-                id:
-                    `${params.source}-${params.target}`,
+                length_m: 0,
+                connectors: 0,
 
-                from:
-                    params.source,
-
-                to:
-                    params.target,
-
+                perda: 0,
+                comprimento: 0,
+                tipo: "distribuicao",
             };
 
-            setDiagram((old: any) => ({
+            setDiagram((old) => ({
 
                 ...old,
 
                 edges: [
                     ...(old.edges ?? []),
-                    novaEdge
-                ]
+                    novaEdge,
+                ],
 
             }));
         },
