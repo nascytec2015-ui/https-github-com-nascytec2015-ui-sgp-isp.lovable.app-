@@ -7,10 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import FTTHFlow from "@/components/ftth/FTTHFlow";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { OpticalEngine, type OpticalResult } from "@/components/ftth/engine/OpticalEngine";
+import { OpticalEngine, type OpticalResult } from "@/components/ftth/OpticalEngine";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog";
-import type { FTTHDiagram } from "@/components/ftth/types/ftth";
+import type { FTTHDiagram, FNode, FEdge } from "@/components/ftth/types/ftth";
 import { toast } from "sonner";
 import { Plus, Trash2, Save, Printer, Download, ArrowLeft, Link2, MousePointer2, Upload, Image as ImageIcon, AlertTriangle, Wand2, } from "lucide-react";
 import { FiberEngine } from "@/components/ftth/engine/FiberEngine";
@@ -54,18 +54,12 @@ export interface FNode {
 }
 
 export interface FEdge {
-  [x: string]: any;
   id: string;
   from: string;
   to: string;
   length_m: number;
   connectors: number;
-}
-
-interface Diagram {
-  nodes: FNode[];
-  edges: FEdge[];
-  background?: string | null; // data URL of an imported SVG used as tracing layer
+  porta?: number | null;
 }
 
 interface Projeto {
@@ -78,20 +72,13 @@ interface Projeto {
 }
 
 // ---------------- Constants ----------------
-const EMENDA_LOSS: Record<number, number> = {
-  2: 3.5,
-  4: 7.2,
-  8: 10.5,
-  16: 13.5,
-  32: 17.0,
-};
-
 const SPLITTER_LOSS: Record<number, number> = {
   2: 3.5,
   4: 7.2,
   8: 10.5,
   16: 13.5,
-  32: 17
+  32: 17,
+  64: 20.5,
 };
 const FIBER_LOSS_PER_KM = 0.35; // dB/km @ 1310nm
 const CONNECTOR_LOSS = 0.3; // per connector
@@ -201,7 +188,7 @@ function calcPowers(diagram: Diagram, oltTx: number) {
       const child = diagram.nodes.find((n) => n.id === e.to);
       if (!child) continue;
       let loss = 0;
-      if (child.type === "splitter" && child.ratio) loss = EMENDA_LOSS[child.ratio] ?? 0;
+      if (child.type === "splitter" && child.ratio) loss = SPLITTER_LOSS[child.ratio] ?? 0;
       if (child.type === "emenda") loss = child.extra_loss_db ?? SPLICE_LOSS;
       tx[child.id] = childRx - loss;
       visit(child.id);
@@ -499,10 +486,12 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
   function handleNodeClick(id: string) {
     if (linkFrom && linkFrom !== id) {
       // prevent cycles: target must not already have a parent
-      const hasParent = diagram.edges.some((e) => e.to === id);
-      if (hasParent) {
-        toast.error("Este nó já tem um pai. Remova a conexão anterior.");
-        setLinkFrom(null);
+      const existingParent = diagram.edges.find(
+        e => e.to === id
+      );
+
+      if (existingParent) {
+        toast.error("Este equipamento já possui entrada óptica.");
         return;
       }
       const source = diagram.nodes.find(n => n.id === linkFrom);
@@ -1482,12 +1471,14 @@ function renderPowerTable(
       .map(
         (node) => `
             <tr>
-              <td>${node.label}</td>
-              <td>${node.type}</td>
-              <td>${powers.tx[node.id]?.toFixed(2) ?? "-"}</td>
-            </tr>
-            <td>${powers.rx[node.id]?.toFixed(2) ?? "-"}</td>
-            </tr>
+  <td>${node.label}</td>
+  <td>${node.type}</td>
+  <td>
+    TX: ${powers.tx[node.id]?.toFixed(2) ?? "-"} dBm
+    <br/>
+    RX: ${powers.rx[node.id]?.toFixed(2) ?? "-"} dBm
+  </td>
+</tr>
           `
       )
       .join("")}
