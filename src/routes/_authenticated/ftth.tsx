@@ -10,7 +10,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OpticalEngine, type OpticalResult } from "@/components/ftth/OpticalEngine";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog";
-import type { FTTHDiagram, FNode, FEdge } from "@/components/ftth/types/ftth";
+import type {
+  FTTHDiagram,
+  FNode,
+  FEdge,
+  NodeType,
+  SplitterRatio
+} from "@/components/ftth/types/ftth";
+
+
+type Diagram = FTTHDiagram;
 import { toast } from "sonner";
 import { Plus, Trash2, Save, Printer, Download, ArrowLeft, Link2, MousePointer2, Upload, Image as ImageIcon, AlertTriangle, Wand2, } from "lucide-react";
 import { FiberEngine } from "@/components/ftth/engine/FiberEngine";
@@ -22,45 +31,6 @@ export const Route = createFileRoute("/_authenticated/ftth")({
 // ---------------- Types ----------------
 type NodeType = "olt" | "dio" | "splitter" | "cto" | "emenda" | "cliente";
 type SplitterRatio = 2 | 4 | 8 | 16 | 32 | 64;
-
-export interface FNode {
-
-  id: string;
-  type: NodeType;
-  label: string;
-
-  x: number;
-  y: number;
-
-  tx?: number;
-
-  // Splitter
-
-  ratio?: 2 | 4 | 8 | 16 | 32 | 64;
-  portasSaida?: 2 | 4 | 8 | 16 | 32 | 64;
-
-  // Emenda
-  extra_loss_db?: number;
-
-  // CTO / DIO
-  capacidade?: number;
-  portas?: number;
-  ocupadas?: number;
-
-  // Reconhecimento SVG
-  recog_confidence?: number;
-  recog_source?: string;
-  recog_issues?: string[];
-}
-
-export interface FEdge {
-  id: string;
-  from: string;
-  to: string;
-  length_m: number;
-  connectors: number;
-  porta?: number | null;
-}
 
 interface Projeto {
   id: string;

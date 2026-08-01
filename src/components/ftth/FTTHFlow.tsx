@@ -4,7 +4,13 @@ import ReactFlow, { Background, Controls, MiniMap, Node, Edge, } from "reactflow
 
 import "reactflow/dist/style.css";
 
-import { FTTHDiagram, FTTHEdgeData, } from "./types/ftth";
+import type {
+    FTTHDiagram,
+    FNode,
+    FEdge,
+    NodeType,
+    SplitterRatio
+} from "@/components/ftth/types/ftth";
 
 import RouterNode from "./nodes/RouterNode";
 import OltNode from "./nodes/OltNode";
@@ -30,12 +36,23 @@ const nodeTypes = {
     emenda: EmendaNode,
 };
 
+import type { OpticalResult } from "./OpticalEngine";
+
+
 interface FTTHFlowProps {
+
     diagram: FTTHDiagram;
-    setDiagram: React.Dispatch<React.SetStateAction<FTTHDiagram>>;
-    powers: Record<string, number>;
-    onSelectNode: (id: string | null) => void;
-    onSelectEdge: (id: string | null) => void;
+
+    setDiagram: React.Dispatch<
+        React.SetStateAction<FTTHDiagram>
+    >;
+
+    powers: OpticalResult;
+
+    onSelectNode?: (id: string) => void;
+
+    onSelectEdge?: (id: string) => void;
+
 }
 
 export default function FTTHFlow({
@@ -47,7 +64,7 @@ export default function FTTHFlow({
 }: FTTHFlowProps) {
 
     const nodes: Node[] = (diagram.nodes ?? []).map((n: any) => {
-        const power = powers[n.id] ?? 0;
+        const power = powers.rx[n.id] ?? 0;
 
         return {
             id: n.id,
