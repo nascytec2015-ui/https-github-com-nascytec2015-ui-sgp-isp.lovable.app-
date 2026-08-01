@@ -95,6 +95,8 @@ function nextPositionFor(type: NodeType, diagram: Diagram) {
     emenda: 430,
     cto: 790,
     cliente: 1030,
+    router: 0,
+    ceo: 3,
   };
 
   return {
@@ -148,7 +150,7 @@ function calcPowers(diagram: Diagram, oltTx: number) {
     const out = tx[nodeId];
     if (out === undefined) return;
     for (const e of childMap[nodeId] || []) {
-      const fiber = (e.length_m / 1000) * FIBER_LOSS_PER_KM;
+      const fiber = ((e.length_m ?? 0) / 1000) * FIBER_LOSS_PER_KM;
       const conn = (e.connectors ?? 2) * CONNECTOR_LOSS;
       const childRx = out - fiber - conn;
       rx[e.to] = childRx;
@@ -340,6 +342,15 @@ const NODE_SIZE: Record<NodeType, { w: number; h: number }> = {
   cto: { w: 80, h: 60 },
   emenda: { w: 70, h: 40 },
   cliente: { w: 70, h: 50 },
+  router: {
+    w: 120,
+    h: 60
+  },
+
+  ceo: {
+    w: 120,
+    h: 60
+  },
 };
 
 const NODE_COLOR: Record<NodeType, string> = {
@@ -349,6 +360,8 @@ const NODE_COLOR: Record<NodeType, string> = {
   cto: "hsl(28 90% 55%)",
   emenda: "hsl(190 70% 50%)",
   cliente: "hsl(142 60% 45%)",
+  router: "#555",
+  ceo: "#777",
 };
 
 const NODE_LABEL: Record<NodeType, string> = {
@@ -358,6 +371,8 @@ const NODE_LABEL: Record<NodeType, string> = {
   cto: "CTO",
   emenda: "Caixa de Emenda",
   cliente: "Cliente",
+  router: "ROUTER",
+  ceo: "CEO",
 };
 
 function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
@@ -493,7 +508,7 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
 
         connectors: 2,
 
-        porta
+        porta: porta ?? undefined
 
       };
       setDiagram((d) => ({ ...d, edges: [...d.edges, newEdge] }));

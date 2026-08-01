@@ -1,4 +1,4 @@
-import type { FTTHNodeType } from "../types/ftth";
+import type { FTTHNodeType } from "./types/ftth";
 
 export const connectionRules: Record<
     FTTHNodeType,
@@ -28,6 +28,8 @@ export const connectionRules: Record<
     ],
 
     cliente: [],
+    router: [],
+    ceo: []
 };
 
 export function canConnect(

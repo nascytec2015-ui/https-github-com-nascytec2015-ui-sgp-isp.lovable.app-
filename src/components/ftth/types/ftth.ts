@@ -5,11 +5,8 @@ export type NodeType =
     | "ceo"
     | "splitter"
     | "cto"
-    | "cliente"
-    | "emenda";
-
-
-export type FTTHNodeType = NodeType;
+    | "emenda"
+    | "cliente";
 
 
 export type SplitterRatio =
@@ -20,9 +17,7 @@ export type SplitterRatio =
     | 32;
 
 
-
 export interface FNode {
-    [x: string]: number;
 
     id: string;
 
@@ -31,14 +26,34 @@ export interface FNode {
     label: string;
 
     x: number;
-
     y: number;
 
+    tx?: number;
+    rx?: number;
 
-    modelo?: string;
+    // splitter
+    ratio?: SplitterRatio;
 
+
+    // caixas
+    capacidade?: number;
+
+
+    // emenda
+    extra_loss_db?: number;
+
+
+    // reconhecimento automático
+    recog_confidence?: number;
+
+    recog_source?: "text" | "shape" | "fallback";
+    
+    recog_issues?: string[];
+
+    // extras
     fabricante?: string;
 
+    modelo?: string;
 
     portas?: number;
 
@@ -46,13 +61,6 @@ export interface FNode {
 
     portasSaida?: number;
 
-
-    splitterRatio?: SplitterRatio;
-
-
-    tx?: number;
-
-    rx?: number;
 }
 
 
@@ -76,18 +84,15 @@ export interface FEdge {
     comprimento?: number;
 
 
+    porta?: number;
+
+
     tipo?:
-    | "backbone"
+    | "alimentacao"
     | "distribuicao"
     | "drop";
+
 }
-
-
-
-export type FTTHNodeData = FNode;
-
-
-export type FTTHEdgeData = FEdge;
 
 
 
@@ -98,5 +103,12 @@ export interface FTTHDiagram {
     edges: FEdge[];
 
     background?: string | null;
-
 }
+
+
+
+export type FTTHNodeType = NodeType;
+
+export type FTTHNodeData = FNode;
+
+export type FTTHEdgeData = FEdge;
