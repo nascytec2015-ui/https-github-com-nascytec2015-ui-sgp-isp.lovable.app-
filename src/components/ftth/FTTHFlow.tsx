@@ -12,15 +12,26 @@ import SplitterNode from "./nodes/SplitterNode";
 
 import ClienteNode from "./nodes/ClienteNode";
 
+import RouterNode from "./nodes/RouterNode";
+
+import CeoNode from "./nodes/CeoNode";
+
+import CtoNode from "./nodes/CtoNode";
+
+import EmendaNode from "./nodes/EmendaNode";
+
 const nodeTypes = {
+    router: RouterNode,
     olt: OltNode,
     dio: DioNode,
+    ceo: CeoNode,
     splitter: SplitterNode,
+    cto: CtoNode,
     cliente: ClienteNode,
-
+    emenda: EmendaNode,
 };
 
-import { canConnect } from "../utils/connectionRules";
+import { canConnect } from "./connectionRules";
 
 import { signalColor } from "./utils/signalColor";
 
