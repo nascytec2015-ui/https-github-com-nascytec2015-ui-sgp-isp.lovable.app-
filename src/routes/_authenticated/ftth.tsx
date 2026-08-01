@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import FTTHFlow from "@/components/ftth/flow/FTTHFlow";
+import FTTHFlow from "@/components/ftth/FTTHFlow";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OpticalEngine, type OpticalResult } from "@/components/ftth/engine/OpticalEngine";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog";
 import type { FTTHDiagram } from "@/components/ftth/types/ftth";
 import { toast } from "sonner";
-import { Plus, Trash2, Save, Printer, Download, ArrowLeft, Link2, MousePointer2, Upload, Image as ImageIcon, AlertTriangle, Wand2,} from "lucide-react";
+import { Plus, Trash2, Save, Printer, Download, ArrowLeft, Link2, MousePointer2, Upload, Image as ImageIcon, AlertTriangle, Wand2, } from "lucide-react";
 import { FiberEngine } from "@/components/ftth/engine/FiberEngine";
 
 export const Route = createFileRoute("/_authenticated/ftth")({
@@ -24,7 +24,7 @@ type NodeType = "olt" | "dio" | "splitter" | "cto" | "emenda" | "cliente";
 type SplitterRatio = 2 | 4 | 8 | 16 | 32 | 64;
 
 export interface FNode {
-  
+
   id: string;
   type: NodeType;
   label: string;
@@ -35,7 +35,7 @@ export interface FNode {
   tx?: number;
 
   // Splitter
-  
+
   ratio?: 2 | 4 | 8 | 16 | 32 | 64;
   portasSaida?: 2 | 4 | 8 | 16 | 32 | 64;
 
@@ -238,7 +238,8 @@ export default function FtthPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [novoNome, setNovoNome] = useState("");
   const [diagram, setDiagram] = useState<FTTHDiagram>({ nodes: [], edges: [], });
-  const powers = useMemo(() => { return OpticalEngine.calculate(diagram);
+  const powers = useMemo(() => {
+    return OpticalEngine.calculate(diagram);
   }, [diagram]);
 
   async function load() {
@@ -701,18 +702,18 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
     let nodes: FNode[] = hasOlt
       ? recognized.nodes
       : [
-          {
-            id: uid(),
-            type: "olt",
-            label: "OLT",
-            x: 80,
-            y: 350,
-            recog_confidence: 0.3,
-            recog_source: "fallback",
-            recog_issues: ["OLT não encontrada no SVG — adicionada automaticamente"],
-          },
-          ...recognized.nodes,
-        ];
+        {
+          id: uid(),
+          type: "olt",
+          label: "OLT",
+          x: 80,
+          y: 350,
+          recog_confidence: 0.3,
+          recog_source: "fallback",
+          recog_issues: ["OLT não encontrada no SVG — adicionada automaticamente"],
+        },
+        ...recognized.nodes,
+      ];
     // Rebuild edges referencing the (possibly prepended) OLT
     const edges = rebuildEdges(nodes);
     // Flag nodes that ended up without a parent edge (orphans)
@@ -953,13 +954,13 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
         {/* Canvas */}
         <Card className="overflow-hidden">
           <CardContent className="p-0">
-              <FTTHFlow
-                diagram={diagram}
-                setDiagram={setDiagram}
-                powers={powers}
-                onSelectNode={setSelNode}
-                onSelectEdge={setSelEdge}
-              />
+            <FTTHFlow
+              diagram={diagram}
+              setDiagram={setDiagram}
+              powers={powers}
+              onSelectNode={setSelNode}
+              onSelectEdge={setSelEdge}
+            />
           </CardContent>
         </Card>
 
