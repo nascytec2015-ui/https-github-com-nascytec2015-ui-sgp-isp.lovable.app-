@@ -47,7 +47,7 @@ export interface FTTHNodeData {
 
     recog_source?: RecognitionSource;
 
-    // Equipamentos
+    // Informações do equipamento
 
     fabricante?: string;
 
@@ -56,6 +56,8 @@ export interface FTTHNodeData {
     ip?: string;
 
     status?: "online" | "offline";
+
+    // Localização
 
     latitude?: number;
 
