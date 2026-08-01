@@ -1,10 +1,12 @@
 export type FTTHNodeType =
-  | "olt"
-  | "dio"
-  | "splitter"
-  | "emenda"
-  | "cto"
-  | "cliente";
+    | "router"
+    | "olt"
+    | "dio"
+    | "ceo"
+    | "splitter"
+    | "emenda"
+    | "cto"
+    | "cliente";
 
 export type SplitterRatio = 2 | 4 | 8 | 16 | 32 | 64;
 
@@ -13,11 +15,16 @@ export type SignalStatus =
     | "warning"
     | "critical";
 
-export type RecognitionSource = string;
+export type RecognitionSource =
+    | "manual"
+    | "text"
+    | "shape";
 
 export interface FTTHNodeData {
     id: string;
+
     type: FTTHNodeType;
+
     label: string;
 
     x: number;
@@ -29,20 +36,39 @@ export interface FTTHNodeData {
     ratio?: SplitterRatio;
 
     capacidade?: number;
- 
+
     portasSaida?: number;
 
     extra_loss_db?: number;
 
-    recog_confidence?: number;
-    recog_source?: RecognitionSource
     signalStatus?: SignalStatus;
+
+    recog_confidence?: number;
+
+    recog_source?: RecognitionSource;
+
+    // Equipamentos
+
+    fabricante?: string;
+
+    modelo?: string;
+
+    ip?: string;
+
+    status?: "online" | "offline";
+
+    latitude?: number;
+
+    longitude?: number;
+
+    observacoes?: string;
 }
 
 export interface FTTHEdgeData {
     id: string;
 
     from: string;
+
     to: string;
 
     tipo?: "feeder" | "distribuicao" | "drop";
@@ -60,5 +86,6 @@ export interface FTTHEdgeData {
 
 export interface FTTHDiagram {
     nodes: FTTHNodeData[];
+
     edges: FTTHEdgeData[];
 }
