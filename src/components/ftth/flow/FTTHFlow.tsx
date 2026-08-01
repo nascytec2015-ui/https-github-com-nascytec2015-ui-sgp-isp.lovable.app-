@@ -4,13 +4,13 @@ import ReactFlow, { Background, Controls, MiniMap, Node, Edge, } from "reactflow
 
 import "reactflow/dist/style.css";
 
-import OltNode from "../nodes/OltNode";
+import OltNode from "../../topology/OltNode";
 
-import DioNode from "../nodes/DioNode";
+import DioNode from "../../topology/DioNode";
 
 import SplitterNode from "../nodes/SplitterNode";
 
-import ClienteNode from "../nodes/ClienteNode";
+import ClienteNode from "../../topology/ClienteNode";
 
 const nodeTypes = {
     olt: OltNode,

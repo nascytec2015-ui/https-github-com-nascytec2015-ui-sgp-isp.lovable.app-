@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Toolbar from "@/components/ftth/Toolbar";
 import Sidebar from "@/components/ftth/Sidebar";
 import Canvas from "@/components/ftth/Canvas";
-import PropertiesPanel from "@/components/ftth/PropertiesPanel";
+import PropertiesPanel from "@/components/topology/PropertiesPanel";
 
 export const Route = createFileRoute(
   "/_authenticated/projetista-ftth/"
