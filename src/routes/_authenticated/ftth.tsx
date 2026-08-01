@@ -29,9 +29,6 @@ export const Route = createFileRoute("/_authenticated/ftth")({
 });
 
 // ---------------- Types ----------------
-type NodeType = "olt" | "dio" | "splitter" | "cto" | "emenda" | "cliente";
-type SplitterRatio = 2 | 4 | 8 | 16 | 32 | 64;
-
 interface Projeto {
   id: string;
   nome: string;
