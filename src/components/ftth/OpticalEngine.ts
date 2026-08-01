@@ -1,6 +1,6 @@
-import { FTTHDiagram, FTTHNodeData } from "../types/ftth";
+import { FTTHDiagram, FTTHNodeData } from "./types/ftth";
 
-import { Graph } from "../utils/graph";
+import { Graph } from "./utils/graph";
 
 const SPLITTER_LOSS: Record<number, number> = {
     2: 3.5,

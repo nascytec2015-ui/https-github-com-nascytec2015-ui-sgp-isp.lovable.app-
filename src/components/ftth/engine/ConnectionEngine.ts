@@ -1,5 +1,5 @@
 import { FTTHNodeData, FTTHEdgeData, FTTHNodeType } from "../types/ftth";
-import { canConnect } from "../utils/connectionRules";
+import { canConnect } from "../connectionRules";
 
 export class ConnectionEngine {
 
