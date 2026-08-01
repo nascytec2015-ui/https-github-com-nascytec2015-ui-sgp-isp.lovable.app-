@@ -17,6 +17,7 @@ export type SplitterRatio =
 
 
 export interface FNode {
+    [x: string]: any;
 
     id: string;
 

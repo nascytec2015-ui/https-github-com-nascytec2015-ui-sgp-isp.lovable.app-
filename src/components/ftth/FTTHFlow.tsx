@@ -4,13 +4,7 @@ import ReactFlow, { Background, Controls, MiniMap, Node, Edge, } from "reactflow
 
 import "reactflow/dist/style.css";
 
-import type {
-    FTTHDiagram,
-    FNode,
-    FEdge,
-    NodeType,
-    SplitterRatio
-} from "@/components/ftth/types/ftth";
+import type { FTTHDiagram, FNode, FEdge } from "./types/ftth";
 
 import RouterNode from "./nodes/RouterNode";
 import OltNode from "./nodes/OltNode";
@@ -63,7 +57,7 @@ export default function FTTHFlow({
     onSelectEdge,
 }: FTTHFlowProps) {
 
-    const nodes: Node[] = (diagram.nodes ?? []).map((n: any) => {
+    const nodes: Node[] = (diagram.nodes ?? []).map((n: FNode) => {
         const power = powers.rx[n.id] ?? 0;
 
         return {
@@ -81,7 +75,7 @@ export default function FTTHFlow({
                 portasUsadas: n.portasUsadas,
                 portasSaida: n.portasSaida,
 
-                tx: power,
+                tx: powers.tx[n.id] ?? 0,
                 power,
                 status: signalColor(power),
             },
@@ -89,7 +83,7 @@ export default function FTTHFlow({
         };
     });
 
-    const edges: Edge[] = (diagram.edges ?? []).map((e: any) => ({
+    const edges: Edge[] = (diagram.edges ?? []).map((e: FEdge) => ({
         id: e.id,
         source: e.from,
         target: e.to,
@@ -129,17 +123,13 @@ export default function FTTHFlow({
                 return;
             }
 
-            const novaEdge: FTTHEdgeData = {
+            const novaEdge: FEdge = {
                 id: `${params.source}-${params.target}`,
                 from: params.source,
                 to: params.target,
 
                 length_m: 0,
                 connectors: 0,
-
-                perda: 0,
-                comprimento: 0,
-                tipo: "distribuicao",
             };
 
             setDiagram((old) => ({
@@ -167,8 +157,8 @@ export default function FTTHFlow({
                 nodeTypes={nodeTypes}
                 fitView
                 onConnect={onConnect}
-                onNodeClick={(_, node) => onSelectNode(node.id)}
-                onEdgeClick={(_, edge) => onSelectEdge(edge.id)}
+                onNodeClick={(_, node) => onSelectNode?.(node.id)}
+                onEdgeClick={(_, edge) => onSelectEdge?.(edge.id)}
             >
                 <Background />
                 <MiniMap />
