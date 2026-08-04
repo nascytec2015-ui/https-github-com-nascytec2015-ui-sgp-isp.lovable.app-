@@ -1,96 +1,83 @@
-import {
-    Cpu,
-    Box,
-    Split,
-    Network,
-    Router,
-    User,
-} from "lucide-react";
+import React from "react";
+import EquipmentCard from "./EquipmentCard";
+import { EQUIPMENTS, EquipmentItem } from "./data/equipments";
 
-const equipamentos = [
-    {
-        tipo: "olt",
-        nome: "OLT",
-        icon: Cpu,
-    },
-    {
-        tipo: "dio",
-        nome: "DIO",
-        icon: Box,
-    },
-    {
-        tipo: "ceo",
-        nome: "CEO",
-        icon: Network,
-    },
-    {
-        tipo: "splitter",
-        nome: "Splitter",
-        icon: Split,
-    },
-    {
-        tipo: "cto",
-        nome: "CTO",
-        icon: Router,
-    },
-    {
-        tipo: "cliente",
-        nome: "Cliente",
-        icon: User,
-    },
-];
+interface SidebarProps {
+    onAddEquipment: (equipment: EquipmentItem) => void;
+}
 
-export default function Sidebar() {
+export default function Sidebar({
+    onAddEquipment,
+}: SidebarProps) {
+
+    const groups = {
+        headend: EQUIPMENTS.filter(e => e.category === "headend"),
+        outside: EQUIPMENTS.filter(e => e.category === "outside"),
+        customer: EQUIPMENTS.filter(e => e.category === "customer"),
+    };
+
     return (
-        <aside className="w-64 border-r bg-background overflow-y-auto">
+        <div className="w-80 bg-slate-950 border-r border-slate-800 overflow-y-auto">
 
-            <div className="p-4 border-b">
-                <h2 className="font-semibold">
-                    Equipamentos
+            <div className="p-4 border-b border-slate-800">
+                <h2 className="text-lg font-bold text-white">
+                    Equipamentos FTTH
                 </h2>
-
-                <p className="text-sm text-muted-foreground">
-                    Arraste um equipamento para o diagrama.
-                </p>
             </div>
 
-            <div className="p-3 space-y-2">
+            <Section
+                title="🏢 HeadEnd"
+                equipments={groups.headend}
+                onAddEquipment={onAddEquipment}
+            />
 
-                {equipamentos.map((item) => {
-                    const Icon = item.icon;
+            <Section
+                title="🌐 Rede Externa"
+                equipments={groups.outside}
+                onAddEquipment={onAddEquipment}
+            />
 
-                    return (
-                        <div
-                            key={item.tipo}
-                            draggable
-                            className="
-                flex
-                items-center
-                gap-3
-                p-3
-                rounded-lg
-                border
-                cursor-grab
-                hover:bg-accent
-                transition
-              "
-                            onDragStart={(event) => {
-                                event.dataTransfer.setData(
-                                    "application/reactflow",
-                                    item.tipo
-                                );
-                                event.dataTransfer.effectAllowed = "move";
-                            }}
-                        >
-                            <Icon className="w-5 h-5" />
+            <Section
+                title="👤 Assinantes"
+                equipments={groups.customer}
+                onAddEquipment={onAddEquipment}
+            />
 
-                            <span>{item.nome}</span>
-                        </div>
-                    );
-                })}
+        </div>
+    );
+}
+
+interface SectionProps {
+    title: string;
+    equipments: EquipmentItem[];
+    onAddEquipment: (equipment: EquipmentItem) => void;
+}
+
+function Section({
+    title,
+    equipments,
+    onAddEquipment,
+}: SectionProps) {
+
+    return (
+        <div className="p-3">
+
+            <h3 className="text-sm font-bold text-cyan-400 mb-2">
+                {title}
+            </h3>
+
+            <div className="space-y-2">
+
+                {equipments.map((equipment) => (
+                    <EquipmentCard
+                        key={equipment.id}
+                        equipment={equipment}
+                        onClick={onAddEquipment}
+                    />
+                ))}
 
             </div>
 
-        </aside>
+        </div>
     );
 }
