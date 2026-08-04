@@ -55,10 +55,14 @@ export default function FTTHFlow({
     setDiagram,
     powers,
     onSelectNode,
-    onSelectEdge,
-
+    onSelectEdge,  
     
 }: FTTHFlowProps) {
+
+    const {
+        draggedType,
+        setDraggedType,
+    } = useDnD();
 
     const nodes: Node[] = (diagram.nodes ?? []).map((n: FNode) => {
         const power = powers.rx[n.id] ?? 0;
