@@ -1,111 +1,75 @@
-export type NodeType =
-    | "router"
-    | "olt"
-    | "dio"
-    | "ceo"
-    | "splitter"
-    | "cto"
-    | "emenda"
-    | "cliente";
+export type NodeType = "router" | "olt" | "dio" | "ceo" | "splitter" | "cto" | "emenda" | "cliente";
 
-
-export type SplitterRatio =
-    | 2
-    | 4
-    | 8
-    | 16
-    | 32;
-
+export type SplitterRatio = 2 | 4 | 8 | 16 | 32;
 
 export interface FNode {
+  id: string;
 
-    id: string;
+  type: NodeType;
 
-    type: NodeType;
+  label: string;
 
-    label: string;
+  x: number;
+  y: number;
 
-    x: number;
-    y: number;
+  tx?: number;
+  rx?: number;
 
-    tx?: number;
-    rx?: number;
+  // splitter
+  ratio?: SplitterRatio;
 
-    // splitter
-    ratio?: SplitterRatio;
+  // caixas
+  capacidade?: number;
 
+  // emenda
+  extra_loss_db?: number;
 
-    // caixas
-    capacidade?: number;
+  // reconhecimento automático
+  recog_confidence?: number;
 
+  recog_source?: "text" | "shape" | "fallback";
 
-    // emenda
-    extra_loss_db?: number;
+  recog_issues?: string[];
 
+  // extras
+  fabricante?: string;
 
-    // reconhecimento automático
-    recog_confidence?: number;
+  modelo?: string;
 
-    recog_source?: "text" | "shape" | "fallback";
-    
-    recog_issues?: string[];
+  portas?: number;
 
-    // extras
-    fabricante?: string;
+  portasUsadas?: number;
 
-    modelo?: string;
-
-    portas?: number;
-
-    portasUsadas?: number;
-
-    portasSaida?: number;
-
+  portasSaida?: number;
 }
-
-
 
 export interface FEdge {
+  id: string;
 
-    id: string;
+  from: string;
 
-    from: string;
+  to: string;
 
-    to: string;
+  length_m?: number;
 
+  connectors?: number;
 
-    length_m?: number;
+  perda?: number;
 
-    connectors?: number;
+  comprimento?: number;
 
+  porta?: number;
 
-    perda?: number;
-
-    comprimento?: number;
-
-
-    porta?: number;
-
-
-    tipo?:
-    | "alimentacao"
-    | "distribuicao"
-    | "drop";
-
+  tipo?: "alimentacao" | "distribuicao" | "drop";
 }
-
-
 
 export interface FTTHDiagram {
+  nodes: FNode[];
 
-    nodes: FNode[];
+  edges: FEdge[];
 
-    edges: FEdge[];
-
-    background?: string | null;
+  background?: string | null;
 }
-
-
 
 export type FTTHNodeType = NodeType;
 

@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 
-import ReactFlow, { Background, Controls, MiniMap, Node, Edge, } from "reactflow";
+import ReactFlow, { Background, Controls, MiniMap, Node, Edge } from "reactflow";
 
 import "reactflow/dist/style.css";
 
@@ -21,156 +21,120 @@ import { signalColor } from "./utils/signalColor";
 import { useDnD } from "./hooks/useDnD";
 
 const nodeTypes = {
-    router: RouterNode,
-    olt: OltNode,
-    dio: DioNode,
-    ceo: CeoNode,
-    splitter: SplitterNode,
-    cto: CtoNode,
-    cliente: ClienteNode,
-    emenda: EmendaNode,
+  router: RouterNode,
+  olt: OltNode,
+  dio: DioNode,
+  ceo: CeoNode,
+  splitter: SplitterNode,
+  cto: CtoNode,
+  cliente: ClienteNode,
+  emenda: EmendaNode,
 };
 
 import type { OpticalResult } from "./OpticalEngine";
 
-
 interface FTTHFlowProps {
+  diagram: FTTHDiagram;
 
-    diagram: FTTHDiagram;
+  setDiagram: React.Dispatch<React.SetStateAction<FTTHDiagram>>;
 
-    setDiagram: React.Dispatch<
-        React.SetStateAction<FTTHDiagram>
-    >;
+  powers: OpticalResult;
 
-    powers: OpticalResult;
+  onSelectNode?: (id: string) => void;
 
-    onSelectNode?: (id: string) => void;
-
-    onSelectEdge?: (id: string) => void;
-
+  onSelectEdge?: (id: string) => void;
 }
 
 export default function FTTHFlow({
-    diagram,
-    setDiagram,
-    powers,
-    onSelectNode,
-    onSelectEdge,  
-    
+  diagram,
+  setDiagram,
+  powers,
+  onSelectNode,
+  onSelectEdge,
 }: FTTHFlowProps) {
+  const { draggedType, setDraggedType } = useDnD();
 
-    const {
-        draggedType,
-        setDraggedType,
-    } = useDnD();
+  const nodes: Node[] = (diagram.nodes ?? []).map((n: FNode) => {
+    const power = powers.rx[n.id] ?? 0;
 
-    const nodes: Node[] = (diagram.nodes ?? []).map((n: FNode) => {
-        const power = powers.rx[n.id] ?? 0;
+    return {
+      id: n.id,
+      position: {
+        x: n.x,
+        y: n.y,
+      },
+      data: {
+        label: n.label,
+        tipo: n.type,
+        modelo: n.modelo,
+        fabricante: n.fabricante,
+        portas: n.portas,
+        portasUsadas: n.portasUsadas,
+        portasSaida: n.portasSaida,
 
-        return {
-            id: n.id,
-            position: {
-                x: n.x,
-                y: n.y,
-            },
-            data: {
-                label: n.label,
-                tipo: n.type,
-                modelo: n.modelo,
-                fabricante: n.fabricante,
-                portas: n.portas,
-                portasUsadas: n.portasUsadas,
-                portasSaida: n.portasSaida,
+        tx: powers.tx[n.id] ?? 0,
+        power,
+        status: signalColor(power),
+      },
+      type: n.type,
+    };
+  });
 
-                tx: powers.tx[n.id] ?? 0,
-                power,
-                status: signalColor(power),
-            },
-            type: n.type,
-        };
-    });
+  const edges: Edge[] = (diagram.edges ?? []).map((e: FEdge) => ({
+    id: e.id,
+    source: e.from,
+    target: e.to,
+  }));
 
-    const edges: Edge[] = (diagram.edges ?? []).map((e: FEdge) => ({
-        id: e.id,
-        source: e.from,
-        target: e.to,
-    }));
+  const onConnect = useCallback(
+    (params: any) => {
+      const source = nodes.find((n) => n.id === params.source);
 
-    const onConnect = useCallback(
-        (params: any) => {
+      const target = nodes.find((n) => n.id === params.target);
 
-            const source =
-                nodes.find(
-                    n => n.id === params.source
-                );
+      if (!source || !target) return;
 
-            const target =
-                nodes.find(
-                    n => n.id === params.target
-                );
+      const permitido = canConnect(source.data.tipo, target.data.tipo);
 
-            if (!source || !target)
-                return;
+      if (!permitido) {
+        console.warn("Conexão FTTH inválida", source.data.tipo, "->", target.data.tipo);
 
-            const permitido =
-                canConnect(
-                    source.data.tipo,
-                    target.data.tipo
-                );
+        return;
+      }
 
-            if (!permitido) {
+      const novaEdge: FEdge = {
+        id: `${params.source}-${params.target}`,
+        from: params.source,
+        to: params.target,
 
-                console.warn(
-                    "Conexão FTTH inválida",
-                    source.data.tipo,
-                    "->",
-                    target.data.tipo
-                );
+        length_m: 0,
+        connectors: 0,
+      };
 
-                return;
-            }
+      setDiagram((old) => ({
+        ...old,
 
-            const novaEdge: FEdge = {
-                id: `${params.source}-${params.target}`,
-                from: params.source,
-                to: params.target,
+        edges: [...(old.edges ?? []), novaEdge],
+      }));
+    },
+    [nodes, setDiagram],
+  );
 
-                length_m: 0,
-                connectors: 0,
-            };
-
-            setDiagram((old) => ({
-
-                ...old,
-
-                edges: [
-                    ...(old.edges ?? []),
-                    novaEdge,
-                ],
-
-            }));
-        },
-        [
-            nodes,
-            setDiagram
-        ]
-    );
-
-    return (
-        <div style={{ width: "100%", height: "72vh" }}>
-            <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                nodeTypes={nodeTypes}
-                fitView
-                onConnect={onConnect}
-                onNodeClick={(_, node) => onSelectNode?.(node.id)}
-                onEdgeClick={(_, edge) => onSelectEdge?.(edge.id)}
-            >
-                <Background />
-                <MiniMap />
-                <Controls />
-            </ReactFlow>
-        </div>
-    );
+  return (
+    <div style={{ width: "100%", height: "72vh" }}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={nodeTypes}
+        fitView
+        onConnect={onConnect}
+        onNodeClick={(_, node) => onSelectNode?.(node.id)}
+        onEdgeClick={(_, edge) => onSelectEdge?.(edge.id)}
+      >
+        <Background />
+        <MiniMap />
+        <Controls />
+      </ReactFlow>
+    </div>
+  );
 }

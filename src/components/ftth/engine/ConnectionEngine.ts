@@ -2,53 +2,31 @@ import { FTTHNodeData, FTTHEdgeData, FTTHNodeType } from "../types/ftth";
 import { canConnect } from "../connectionRules";
 
 export class ConnectionEngine {
+  static validateConnection(source: FTTHNodeData, target: FTTHNodeData): boolean {
+    return canConnect(source.type, target.type);
+  }
 
-    static validateConnection(
-        source: FTTHNodeData,
-        target: FTTHNodeData
-    ): boolean {
+  static createConnection(source: FTTHNodeData, target: FTTHNodeData): FTTHEdgeData {
+    return {
+      id: crypto.randomUUID(),
 
-        return canConnect(
-            source.type,
-            target.type
-        );
+      from: source.id,
 
-    }
+      to: target.id,
 
-    static createConnection(
-        source: FTTHNodeData,
-        target: FTTHNodeData
-    ): FTTHEdgeData {
+      tipo: "distribuicao",
 
-        return {
-    id: crypto.randomUUID(),
+      comprimento: 0,
 
-    from: source.id,
+      perda: 0,
 
-    to: target.id,
+      length_m: 0,
 
-    tipo: "distribuicao",
+      connectors: 0,
+    };
+  }
 
-    comprimento: 0,
-
-    perda: 0,
-   
-    length_m: 0,
-    
-    connectors: 0
-};
-
-    }
-
-    static removeConnection(
-        edges: FTTHEdgeData[],
-        edgeId: string
-    ) {
-
-        return edges.filter(
-            edge => edge.id !== edgeId
-        );
-
-    }
-
+  static removeConnection(edges: FTTHEdgeData[], edgeId: string) {
+    return edges.filter((edge) => edge.id !== edgeId);
+  }
 }

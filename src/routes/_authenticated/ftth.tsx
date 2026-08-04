@@ -8,20 +8,45 @@ import { Textarea } from "@/components/ui/textarea";
 import FTTHFlow from "@/components/ftth/FTTHFlow";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OpticalEngine, type OpticalResult } from "@/components/ftth/OpticalEngine";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import type {
   FTTHDiagram,
   FNode,
   FEdge,
   NodeType,
-  SplitterRatio
+  SplitterRatio,
 } from "@/components/ftth/types/ftth";
-
 
 type Diagram = FTTHDiagram;
 import { toast } from "sonner";
-import { Plus, Trash2, Save, Printer, Download, ArrowLeft, Link2, MousePointer2, Upload, Image as ImageIcon, AlertTriangle, Wand2, } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Save,
+  Printer,
+  Download,
+  ArrowLeft,
+  Link2,
+  MousePointer2,
+  Upload,
+  Image as ImageIcon,
+  AlertTriangle,
+  Wand2,
+} from "lucide-react";
 import { FiberEngine } from "@/components/ftth/engine/FiberEngine";
 
 export const Route = createFileRoute("/_authenticated/ftth")({
@@ -193,7 +218,7 @@ export default function FtthPage() {
   const [selected, setSelected] = useState<Projeto | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [novoNome, setNovoNome] = useState("");
-  const [diagram, setDiagram] = useState<FTTHDiagram>({ nodes: [], edges: [], });
+  const [diagram, setDiagram] = useState<FTTHDiagram>({ nodes: [], edges: [] });
   const powers = useMemo(() => {
     return OpticalEngine.calculate(diagram);
   }, [diagram]);
@@ -258,8 +283,8 @@ export default function FtthPage() {
         <div>
           <h1 className="text-2xl font-semibold">Projetos FTTH</h1>
           <p className="text-sm text-muted-foreground">
-            Desenhe a rede óptica: OLT, DIO, splitters, CTOs, caixas de emenda e clientes. Cálculo de
-            potência automático.
+            Desenhe a rede óptica: OLT, DIO, splitters, CTOs, caixas de emenda e clientes. Cálculo
+            de potência automático.
           </p>
         </div>
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
@@ -344,12 +369,12 @@ const NODE_SIZE: Record<NodeType, { w: number; h: number }> = {
   cliente: { w: 70, h: 50 },
   router: {
     w: 120,
-    h: 60
+    h: 60,
   },
 
   ceo: {
     w: 120,
-    h: 60
+    h: 60,
   },
 };
 
@@ -383,10 +408,7 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
     normalizeDiagram(projeto.data ?? { nodes: [], edges: [] }),
   );
   const powers = useMemo(() => OpticalEngine.calculate(diagram), [diagram]);
-  const fibers = useMemo(
-    () => FiberEngine.calculate(diagram),
-    [diagram]
-  );
+  const fibers = useMemo(() => FiberEngine.calculate(diagram), [diagram]);
   const [selNode, setSelNode] = useState<string | null>(null);
   const [selEdge, setSelEdge] = useState<string | null>(null);
   const [linkFrom, setLinkFrom] = useState<string | null>(null); // when set, click target to connect
@@ -444,60 +466,48 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
   }
 
   function nextFreePorta(ctoId: string) {
-
     const usadas = diagram.edges
-      .filter(e => e.from === ctoId)
-      .map(e => e.porta)
+      .filter((e) => e.from === ctoId)
+      .map((e) => e.porta)
       .filter(Boolean) as number[];
 
-    const cto = diagram.nodes.find(n => n.id === ctoId);
+    const cto = diagram.nodes.find((n) => n.id === ctoId);
 
     const total = cto?.capacidade ?? 16;
 
     for (let i = 1; i <= total; i++) {
-
-      if (!usadas.includes(i))
-        return i;
-
+      if (!usadas.includes(i)) return i;
     }
 
     return null;
-
   }
 
   function handleNodeClick(id: string) {
     if (linkFrom && linkFrom !== id) {
       // prevent cycles: target must not already have a parent
-      const existingParent = diagram.edges.find(
-        e => e.to === id
-      );
+      const existingParent = diagram.edges.find((e) => e.to === id);
 
       if (existingParent) {
         toast.error("Este equipamento já possui entrada óptica.");
         return;
       }
-      const source = diagram.nodes.find(n => n.id === linkFrom);
+      const source = diagram.nodes.find((n) => n.id === linkFrom);
 
       let porta: number | null = null;
 
       if (source?.type === "cto") {
-
         porta = nextFreePorta(source.id);
 
         if (!porta) {
-
           toast.error("Todas as portas da CTO estão ocupadas.");
 
           setLinkFrom(null);
 
           return;
-
         }
-
       }
 
       const newEdge: FEdge = {
-
         id: uid(),
 
         from: linkFrom,
@@ -508,8 +518,7 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
 
         connectors: 2,
 
-        porta: porta ?? undefined
-
+        porta: porta ?? undefined,
       };
       setDiagram((d) => ({ ...d, edges: [...d.edges, newEdge] }));
       setLinkFrom(null);
@@ -673,18 +682,18 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
     let nodes: FNode[] = hasOlt
       ? recognized.nodes
       : [
-        {
-          id: uid(),
-          type: "olt",
-          label: "OLT",
-          x: 80,
-          y: 350,
-          recog_confidence: 0.3,
-          recog_source: "fallback",
-          recog_issues: ["OLT não encontrada no SVG — adicionada automaticamente"],
-        },
-        ...recognized.nodes,
-      ];
+          {
+            id: uid(),
+            type: "olt",
+            label: "OLT",
+            x: 80,
+            y: 350,
+            recog_confidence: 0.3,
+            recog_source: "fallback",
+            recog_issues: ["OLT não encontrada no SVG — adicionada automaticamente"],
+          },
+          ...recognized.nodes,
+        ];
     // Rebuild edges referencing the (possibly prepended) OLT
     const edges = rebuildEdges(nodes);
     // Flag nodes that ended up without a parent edge (orphans)
@@ -1025,10 +1034,7 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
 
                     <div>
                       <Label className="text-xs">Porta da CTO</Label>
-                      <Input
-                        value={selectedEdge.porta ?? "-"}
-                        readOnly
-                      />
+                      <Input value={selectedEdge.porta ?? "-"} readOnly />
                     </div>
 
                     <Button
@@ -1064,23 +1070,17 @@ function Editor({ projeto, onBack }: { projeto: Projeto; onBack: () => void }) {
 
                   <div>
                     Entrada:
-                    <span className="font-mono ml-1">
-                      {fibers[selectedNode.id]?.entrada ?? 0}
-                    </span>
+                    <span className="font-mono ml-1">{fibers[selectedNode.id]?.entrada ?? 0}</span>
                   </div>
 
                   <div>
                     Saída:
-                    <span className="font-mono ml-1">
-                      {fibers[selectedNode.id]?.saida ?? 0}
-                    </span>
+                    <span className="font-mono ml-1">{fibers[selectedNode.id]?.saida ?? 0}</span>
                   </div>
 
                   <div>
                     Livres:
-                    <span className="font-mono ml-1">
-                      {fibers[selectedNode.id]?.livres ?? 0}
-                    </span>
+                    <span className="font-mono ml-1">{fibers[selectedNode.id]?.livres ?? 0}</span>
                   </div>
                 </div>
                 {selectedNode.recog_confidence !== undefined && (
@@ -1241,7 +1241,7 @@ function classifyHint(t: string): ClassifyResult | null {
       return {
         type: "splitter",
         ratio: Number(r) as SplitterRatio,
-        confidence: 0.95
+        confidence: 0.95,
       };
     }
     return {
@@ -1435,10 +1435,7 @@ function rebuildEdges(nodes: FNode[]): FEdge[] {
   return edges;
 }
 
-function renderPowerTable(
-  diagram: FTTHDiagram,
-  powers: OpticalResult
-) {
+function renderPowerTable(diagram: FTTHDiagram, powers: OpticalResult) {
   return `
     <table>
       <thead>
@@ -1450,8 +1447,8 @@ function renderPowerTable(
       </thead>
       <tbody>
         ${diagram.nodes
-      .map(
-        (node) => `
+          .map(
+            (node) => `
             <tr>
   <td>${node.label}</td>
   <td>${node.type}</td>
@@ -1461,11 +1458,10 @@ function renderPowerTable(
     RX: ${powers.rx[node.id]?.toFixed(2) ?? "-"} dBm
   </td>
 </tr>
-          `
-      )
-      .join("")}
+          `,
+          )
+          .join("")}
       </tbody>
     </table>
   `;
 }
-

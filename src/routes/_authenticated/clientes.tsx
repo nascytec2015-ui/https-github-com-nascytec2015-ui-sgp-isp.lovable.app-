@@ -83,7 +83,7 @@ type Cliente = {
 
   cto_ref: string | null;
   porta_cto: number | null;
-  
+
   data_ativacao: string | null;
   data_cancelamento: string | null;
 
@@ -108,10 +108,7 @@ const clienteSchema = z.object({
   ppoe_pass: z.string().trim().max(80).optional().or(z.literal("")),
   ip_fixo: z.string().trim().max(45).optional().or(z.literal("")),
   cto_ref: z.string().trim().max(80).optional().or(z.literal("")),
-  porta_cto: z
-    .string()
-    .optional()
-    .or(z.literal("")),
+  porta_cto: z.string().optional().or(z.literal("")),
   observacoes: z.string().trim().max(1000).optional().or(z.literal("")),
 });
 
@@ -181,21 +178,13 @@ function ClientesPage() {
       const parsed = clienteSchema.parse(raw);
       const payload: Record<string, unknown> = {};
       Object.entries(parsed).forEach(([k, v]) => {
-
         if (k === "porta_cto") {
-          payload[k] =
-            v === "" || v === undefined
-              ? null
-              : Number(v);
+          payload[k] = v === "" || v === undefined ? null : Number(v);
 
           return;
         }
 
-        payload[k] =
-          v === "" || v === undefined
-            ? null
-            : v;
-
+        payload[k] = v === "" || v === undefined ? null : v;
       });
       if (editing) {
         const { error } = await supabase
@@ -507,9 +496,7 @@ function ClientesPage() {
                   <Input id="ip_fixo" name="ip_fixo" defaultValue={editing?.ip_fixo ?? ""} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="cto_ref">
-                    CTO / Caixa
-                  </Label>
+                  <Label htmlFor="cto_ref">CTO / Caixa</Label>
 
                   <Input
                     id="cto_ref"
@@ -517,14 +504,10 @@ function ClientesPage() {
                     placeholder="Ex: CTO-001"
                     defaultValue={editing?.cto_ref ?? ""}
                   />
-
                 </div>
 
-
                 <div className="space-y-2">
-                  <Label htmlFor="porta_cto">
-                    Porta CTO
-                  </Label>
+                  <Label htmlFor="porta_cto">Porta CTO</Label>
 
                   <Input
                     id="porta_cto"
@@ -533,11 +516,8 @@ function ClientesPage() {
                     min="0"
                     max="999"
                     placeholder="Ex: 01"
-                    defaultValue={
-                      editing?.porta_cto ?? ""
-                    }
+                    defaultValue={editing?.porta_cto ?? ""}
                   />
-
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="ppoe_user">Usuário PPPoE</Label>

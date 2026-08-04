@@ -2,7 +2,18 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, ClipboardList, Search, Upload, Image as ImageIcon, Video, FileIcon, X } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  ClipboardList,
+  Search,
+  Upload,
+  Image as ImageIcon,
+  Video,
+  FileIcon,
+  X,
+} from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
@@ -11,10 +22,30 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/_authenticated/os")({
@@ -22,8 +53,22 @@ export const Route = createFileRoute("/_authenticated/os")({
   component: OSPage,
 });
 
-type OSTipo = "instalacao" | "reparo" | "manutencao" | "mudanca_endereco" | "desativacao" | "visita_tecnica" | "outros"
-type OSStatus = "agendada" | "aberta" | "em_execucao" | "em_deslocamento" | "aguardando_material" | "concluida" | "cancelada"
+type OSTipo =
+  | "instalacao"
+  | "reparo"
+  | "manutencao"
+  | "mudanca_endereco"
+  | "desativacao"
+  | "visita_tecnica"
+  | "outros";
+type OSStatus =
+  | "agendada"
+  | "aberta"
+  | "em_execucao"
+  | "em_deslocamento"
+  | "aguardando_material"
+  | "concluida"
+  | "cancelada";
 
 type Material = {
   id?: string;
@@ -63,7 +108,6 @@ const TIPO_LABEL: Record<OSTipo, string> = {
   desativacao: "Desativação",
 };
 
-
 const STATUS_LABEL: Record<OSStatus, string> = {
   agendada: "Agendada",
   aberta: "Aberta",
@@ -87,7 +131,15 @@ const STATUS_VARIANT: Record<OSStatus, "default" | "secondary" | "destructive" |
 const osSchema = z.object({
   cliente_id: z.string().uuid("Selecione um cliente"),
   tipo: z.enum(["instalacao", "manutencao", "mudanca_endereco", "visita_tecnica"]),
-  status: z.enum(["agendada", "aberta", "em_execucao", "em_deslocamento", "aguardando_material", "concluida", "cancelada"]),
+  status: z.enum([
+    "agendada",
+    "aberta",
+    "em_execucao",
+    "em_deslocamento",
+    "aguardando_material",
+    "concluida",
+    "cancelada",
+  ]),
   descricao: z.string().trim().min(3, "Descreva o serviço").max(2000),
   tecnico_id: z.string().uuid().nullable(),
   cto_ref: z.string().max(80).nullable(),
@@ -156,7 +208,6 @@ function OSPage() {
 
         cto_ref: string | null;
         porta_cto: number | null;
-
       }[];
     },
   });
@@ -171,7 +222,7 @@ function OSPage() {
       if (error) throw error;
       return (data ?? []).map((r) => ({
         id: r.user_id as string,
-        nome: ((r as { profiles?: { full_name?: string } }).profiles?.full_name) || "Técnico",
+        nome: (r as { profiles?: { full_name?: string } }).profiles?.full_name || "Técnico",
       }));
     },
   });
@@ -192,13 +243,17 @@ function OSPage() {
   function fullAddress(c: (typeof clientes)[number] | undefined) {
     if (!c) return "";
     const linha1 = [c.endereco, c.numero].filter(Boolean).join(", ");
-    const linha2 = [c.bairro, c.cidade && c.estado ? `${c.cidade}/${c.estado}` : c.cidade || c.estado, c.cep]
-      .filter(Boolean).join(" - ");
+    const linha2 = [
+      c.bairro,
+      c.cidade && c.estado ? `${c.cidade}/${c.estado}` : c.cidade || c.estado,
+      c.cep,
+    ]
+      .filter(Boolean)
+      .join(" - ");
     return [linha1, linha2].filter(Boolean).join(" — ");
   }
 
   function openNew() {
-
     setEditing(null);
     setMateriais([]);
 
@@ -212,63 +267,31 @@ function OSPage() {
   }
 
   function openEdit(o: OS) {
-
     setEditing(o);
 
     setMateriais([]);
 
     setClienteId(o.cliente_id);
 
-    setEndereco(
-      o.endereco_atendimento ??
-      fullAddress(
-        clientes.find(
-          c => c.id === o.cliente_id
-        )
-      )
-    );
+    setEndereco(o.endereco_atendimento ?? fullAddress(clientes.find((c) => c.id === o.cliente_id)));
 
+    setCtoRef(o.cto_ref ?? "");
 
-    setCtoRef(
-      o.cto_ref ?? ""
-    );
-
-
-    setPortaCto(
-      o.porta_cto
-        ? String(o.porta_cto)
-        : ""
-    );
-
+    setPortaCto(o.porta_cto ? String(o.porta_cto) : "");
 
     setOpen(true);
   }
 
   function onClienteChange(id: string) {
-
     setClienteId(id);
 
-    const c = clientes.find(
-      (x) => x.id === id
-    );
+    const c = clientes.find((x) => x.id === id);
 
+    setEndereco(fullAddress(c));
 
-    setEndereco(
-      fullAddress(c)
-    );
+    setCtoRef(c?.cto_ref ?? "");
 
-
-    setCtoRef(
-      c?.cto_ref ?? ""
-    );
-
-
-    setPortaCto(
-      c?.porta_cto
-        ? String(c.porta_cto)
-        : ""
-    );
-
+    setPortaCto(c?.porta_cto ? String(c.porta_cto) : "");
   }
 
   // Evidências
@@ -282,12 +305,22 @@ function OSPage() {
         .eq("os_id", editing!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      const withUrls = await Promise.all((data ?? []).map(async (e) => {
-        const { data: signed } = await supabase.storage
-          .from("os-evidencias").createSignedUrl(e.path, 3600);
-        return { ...e, url: signed?.signedUrl ?? null };
-      }));
-      return withUrls as Array<{ id: string; path: string; tipo: string; mime: string | null; legenda: string | null; url: string | null }>;
+      const withUrls = await Promise.all(
+        (data ?? []).map(async (e) => {
+          const { data: signed } = await supabase.storage
+            .from("os-evidencias")
+            .createSignedUrl(e.path, 3600);
+          return { ...e, url: signed?.signedUrl ?? null };
+        }),
+      );
+      return withUrls as Array<{
+        id: string;
+        path: string;
+        tipo: string;
+        mime: string | null;
+        legenda: string | null;
+        url: string | null;
+      }>;
     },
   });
 
@@ -302,11 +335,21 @@ function OSPage() {
         const ext = file.name.split(".").pop() || "bin";
         const path = `${editing.id}/${crypto.randomUUID()}.${ext}`;
         const { error: upErr } = await supabase.storage
-          .from("os-evidencias").upload(path, file, { contentType: file.type });
+          .from("os-evidencias")
+          .upload(path, file, { contentType: file.type });
         if (upErr) throw upErr;
-        const tipo = file.type.startsWith("image/") ? "foto" : file.type.startsWith("video/") ? "video" : "outro";
+        const tipo = file.type.startsWith("image/")
+          ? "foto"
+          : file.type.startsWith("video/")
+            ? "video"
+            : "outro";
         const { error: dbErr } = await supabase.from("os_evidencias").insert({
-          os_id: editing.id, path, tipo, mime: file.type, tamanho: file.size, uploaded_by: uid,
+          os_id: editing.id,
+          path,
+          tipo,
+          mime: file.type,
+          tamanho: file.size,
+          uploaded_by: uid,
         });
         if (dbErr) throw dbErr;
       }
@@ -323,7 +366,10 @@ function OSPage() {
     if (!confirm("Remover esta evidência?")) return;
     await supabase.storage.from("os-evidencias").remove([path]);
     const { error } = await supabase.from("os_evidencias").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Evidência removida");
     qc.invalidateQueries({ queryKey: ["os_evidencias", editing?.id] });
   }
@@ -355,25 +401,25 @@ function OSPage() {
       });
 
       // Validação para instalações
-      if (
-        parsed.tipo === "instalacao" &&
-        (!parsed.cto_ref || parsed.porta_cto === null)
-      ) {
-        throw new Error(
-          "Informe a CTO e a Porta antes de salvar uma instalação."
-        );
+      if (parsed.tipo === "instalacao" && (!parsed.cto_ref || parsed.porta_cto === null)) {
+        throw new Error("Informe a CTO e a Porta antes de salvar uma instalação.");
       }
 
       const payload = {
         ...parsed,
         data_agendada: parsed.data_agendada ? new Date(parsed.data_agendada).toISOString() : null,
         data_inicio: parsed.data_inicio ? new Date(parsed.data_inicio).toISOString() : null,
-        data_conclusao: parsed.data_conclusao ? new Date(parsed.data_conclusao).toISOString() : null,
+        data_conclusao: parsed.data_conclusao
+          ? new Date(parsed.data_conclusao).toISOString()
+          : null,
       };
 
       let osId: string;
       if (editing) {
-        const { error } = await supabase.from("ordens_servico").update(payload).eq("id", editing.id);
+        const { error } = await supabase
+          .from("ordens_servico")
+          .update(payload)
+          .eq("id", editing.id);
         if (error) throw error;
         osId = editing.id;
         await supabase.from("os_materiais").delete().eq("os_id", osId);
@@ -420,7 +466,8 @@ function OSPage() {
 
   const filtered = ordens.filter((o) => {
     const t = filter.toLowerCase();
-    const matchT = !t ||
+    const matchT =
+      !t ||
       String(o.numero).includes(t) ||
       o.clientes?.nome?.toLowerCase().includes(t) ||
       o.descricao?.toLowerCase().includes(t);
@@ -433,10 +480,14 @@ function OSPage() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Ordens de Serviço</h1>
-          <p className="text-muted-foreground">Gerencie instalações, manutenções e visitas técnicas</p>
+          <p className="text-muted-foreground">
+            Gerencie instalações, manutenções e visitas técnicas
+          </p>
         </div>
         {canCreate && (
-          <Button onClick={openNew}><Plus className="h-4 w-4 mr-2" /> Nova OS</Button>
+          <Button onClick={openNew}>
+            <Plus className="h-4 w-4 mr-2" /> Nova OS
+          </Button>
         )}
       </div>
 
@@ -452,12 +503,19 @@ function OSPage() {
                 onChange={(e) => setFilter(e.target.value)}
               />
             </div>
-            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as OSStatus | "todos")}>
-              <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+            <Select
+              value={statusFilter}
+              onValueChange={(v) => setStatusFilter(v as OSStatus | "todos")}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todos os status</SelectItem>
                 {(Object.keys(STATUS_LABEL) as OSStatus[]).map((s) => (
-                  <SelectItem key={s} value={s}>{STATUS_LABEL[s]}</SelectItem>
+                  <SelectItem key={s} value={s}>
+                    {STATUS_LABEL[s]}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -488,7 +546,9 @@ function OSPage() {
                     <TableCell className="font-mono">#{o.numero}</TableCell>
                     <TableCell className="font-medium">{o.clientes?.nome ?? "—"}</TableCell>
                     <TableCell>{TIPO_LABEL[o.tipo]}</TableCell>
-                    <TableCell><Badge variant={STATUS_VARIANT[o.status]}>{STATUS_LABEL[o.status]}</Badge></TableCell>
+                    <TableCell>
+                      <Badge variant={STATUS_VARIANT[o.status]}>{STATUS_LABEL[o.status]}</Badge>
+                    </TableCell>
                     <TableCell className="text-sm">
                       {o.data_agendada ? new Date(o.data_agendada).toLocaleString("pt-BR") : "—"}
                     </TableCell>
@@ -497,9 +557,13 @@ function OSPage() {
                         <Pencil className="h-4 w-4" />
                       </Button>
                       {isAdmin && (
-                        <Button variant="ghost" size="icon" onClick={() => {
-                          if (confirm(`Remover OS #${o.numero}?`)) remove.mutate(o.id);
-                        }}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            if (confirm(`Remover OS #${o.numero}?`)) remove.mutate(o.id);
+                          }}
+                        >
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       )}
@@ -512,16 +576,27 @@ function OSPage() {
         </CardContent>
       </Card>
 
-      <Dialog open={open} onOpenChange={(o) => {
-        setOpen(o);
-        if (!o) { setEditing(null); setMateriais([]); }
-      }}>
+      <Dialog
+        open={open}
+        onOpenChange={(o) => {
+          setOpen(o);
+          if (!o) {
+            setEditing(null);
+            setMateriais([]);
+          }
+        }}
+      >
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editing ? `Editar OS #${editing.numero}` : "Nova Ordem de Serviço"}</DialogTitle>
+            <DialogTitle>
+              {editing ? `Editar OS #${editing.numero}` : "Nova Ordem de Serviço"}
+            </DialogTitle>
           </DialogHeader>
           <form
-            onSubmit={(e) => { e.preventDefault(); save.mutate(new FormData(e.currentTarget)); }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              save.mutate(new FormData(e.currentTarget));
+            }}
             className="space-y-4"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -536,7 +611,11 @@ function OSPage() {
                   className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
                 >
                   <option value="">Selecione...</option>
-                  {clientes.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                  {clientes.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.nome}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="space-y-2">
@@ -549,7 +628,9 @@ function OSPage() {
                   className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
                 >
                   {(Object.keys(TIPO_LABEL) as OSTipo[]).map((t) => (
-                    <option key={t} value={t}>{TIPO_LABEL[t]}</option>
+                    <option key={t} value={t}>
+                      {TIPO_LABEL[t]}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -563,7 +644,9 @@ function OSPage() {
                   className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
                 >
                   {(Object.keys(STATUS_LABEL) as OSStatus[]).map((s) => (
-                    <option key={s} value={s}>{STATUS_LABEL[s]}</option>
+                    <option key={s} value={s}>
+                      {STATUS_LABEL[s]}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -576,14 +659,24 @@ function OSPage() {
                   className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
                 >
                   <option value="">— Não atribuído —</option>
-                  {tecnicos.map((t) => <option key={t.id} value={t.id}>{t.nome}</option>)}
+                  {tecnicos.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.nome}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="descricao">Descrição do serviço *</Label>
-              <Textarea id="descricao" name="descricao" defaultValue={editing?.descricao ?? ""} required rows={3} />
+              <Textarea
+                id="descricao"
+                name="descricao"
+                defaultValue={editing?.descricao ?? ""}
+                required
+                rows={3}
+              />
             </div>
 
             <div className="space-y-2">
@@ -595,7 +688,9 @@ function OSPage() {
                 onChange={(e) => setEndereco(e.target.value)}
                 placeholder="Preenchido automaticamente a partir do cliente"
               />
-              <p className="text-xs text-muted-foreground">Puxado do cadastro do cliente. Edite se o atendimento for em outro endereço.</p>
+              <p className="text-xs text-muted-foreground">
+                Puxado do cadastro do cliente. Edite se o atendimento for em outro endereço.
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -605,9 +700,7 @@ function OSPage() {
                   id="cto_ref"
                   name="cto_ref"
                   value={ctoRef}
-                  onChange={(e) =>
-                    setCtoRef(e.target.value)
-                  }
+                  onChange={(e) => setCtoRef(e.target.value)}
                   placeholder="CTO-001"
                 />
               </div>
@@ -618,9 +711,7 @@ function OSPage() {
                   name="porta_cto"
                   type="number"
                   value={portaCto}
-                  onChange={(e) =>
-                    setPortaCto(e.target.value)
-                  }
+                  onChange={(e) => setPortaCto(e.target.value)}
                 />
               </div>
             </div>
@@ -628,15 +719,30 @@ function OSPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="data_agendada">Agendada</Label>
-                <Input id="data_agendada" name="data_agendada" type="datetime-local" defaultValue={toDtLocal(editing?.data_agendada)} />
+                <Input
+                  id="data_agendada"
+                  name="data_agendada"
+                  type="datetime-local"
+                  defaultValue={toDtLocal(editing?.data_agendada)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="data_inicio">Início</Label>
-                <Input id="data_inicio" name="data_inicio" type="datetime-local" defaultValue={toDtLocal(editing?.data_inicio)} />
+                <Input
+                  id="data_inicio"
+                  name="data_inicio"
+                  type="datetime-local"
+                  defaultValue={toDtLocal(editing?.data_inicio)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="data_conclusao">Conclusão</Label>
-                <Input id="data_conclusao" name="data_conclusao" type="datetime-local" defaultValue={toDtLocal(editing?.data_conclusao)} />
+                <Input
+                  id="data_conclusao"
+                  name="data_conclusao"
+                  type="datetime-local"
+                  defaultValue={toDtLocal(editing?.data_conclusao)}
+                />
               </div>
             </div>
 
@@ -644,7 +750,17 @@ function OSPage() {
             <div className="space-y-2 border rounded-lg p-3">
               <div className="flex items-center justify-between">
                 <Label>Equipamentos / materiais usados</Label>
-                <Button type="button" size="sm" variant="outline" onClick={() => setMateriais((m) => [...m, { descricao: "", quantidade: 1, unidade: "un", valor_unitario: 0 }])}>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    setMateriais((m) => [
+                      ...m,
+                      { descricao: "", quantidade: 1, unidade: "un", valor_unitario: 0 },
+                    ])
+                  }
+                >
                   <Plus className="h-3 w-3 mr-1" /> Adicionar
                 </Button>
               </div>
@@ -655,25 +771,50 @@ function OSPage() {
                   {materiais.map((m, i) => (
                     <div key={i} className="grid grid-cols-12 gap-2 items-end">
                       <div className="col-span-5">
-                        <Input placeholder="Descrição" value={m.descricao} onChange={(e) => {
-                          const v = e.target.value;
-                          setMateriais((arr) => arr.map((x, j) => j === i ? { ...x, descricao: v } : x));
-                        }} />
+                        <Input
+                          placeholder="Descrição"
+                          value={m.descricao}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setMateriais((arr) =>
+                              arr.map((x, j) => (j === i ? { ...x, descricao: v } : x)),
+                            );
+                          }}
+                        />
                       </div>
                       <div className="col-span-2">
-                        <Input type="number" step="0.01" placeholder="Qtd" value={m.quantidade} onChange={(e) => {
-                          const v = Number(e.target.value);
-                          setMateriais((arr) => arr.map((x, j) => j === i ? { ...x, quantidade: v } : x));
-                        }} />
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="Qtd"
+                          value={m.quantidade}
+                          onChange={(e) => {
+                            const v = Number(e.target.value);
+                            setMateriais((arr) =>
+                              arr.map((x, j) => (j === i ? { ...x, quantidade: v } : x)),
+                            );
+                          }}
+                        />
                       </div>
                       <div className="col-span-2">
-                        <Input placeholder="un" value={m.unidade} onChange={(e) => {
-                          const v = e.target.value;
-                          setMateriais((arr) => arr.map((x, j) => j === i ? { ...x, unidade: v } : x));
-                        }} />
+                        <Input
+                          placeholder="un"
+                          value={m.unidade}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setMateriais((arr) =>
+                              arr.map((x, j) => (j === i ? { ...x, unidade: v } : x)),
+                            );
+                          }}
+                        />
                       </div>
                       <div className="col-span-1">
-                        <Button type="button" variant="ghost" size="icon" onClick={() => setMateriais((arr) => arr.filter((_, j) => j !== i))}>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setMateriais((arr) => arr.filter((_, j) => j !== i))}
+                        >
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </div>
@@ -685,7 +826,12 @@ function OSPage() {
 
             <div className="space-y-2">
               <Label htmlFor="assinatura_cliente">Assinatura / nome do recebedor</Label>
-              <Input id="assinatura_cliente" name="assinatura_cliente" defaultValue={editing?.assinatura_cliente ?? ""} placeholder="Nome de quem assinou no local" />
+              <Input
+                id="assinatura_cliente"
+                name="assinatura_cliente"
+                defaultValue={editing?.assinatura_cliente ?? ""}
+                placeholder="Nome de quem assinou no local"
+              />
             </div>
 
             {/* Evidências */}
@@ -696,7 +842,8 @@ function OSPage() {
                   <label className="inline-flex">
                     <Button type="button" size="sm" variant="outline" asChild>
                       <span className="cursor-pointer">
-                        <Upload className="h-3 w-3 mr-1" /> {uploading ? "Enviando..." : "Adicionar arquivos"}
+                        <Upload className="h-3 w-3 mr-1" />{" "}
+                        {uploading ? "Enviando..." : "Adicionar arquivos"}
                       </span>
                     </Button>
                     <input
@@ -705,7 +852,10 @@ function OSPage() {
                       multiple
                       className="hidden"
                       disabled={uploading}
-                      onChange={(e) => { uploadEvidencias(e.target.files); e.target.value = ""; }}
+                      onChange={(e) => {
+                        uploadEvidencias(e.target.files);
+                        e.target.value = "";
+                      }}
                     />
                   </label>
                 </div>
@@ -714,21 +864,39 @@ function OSPage() {
                 ) : (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {evidencias.map((ev) => (
-                      <div key={ev.id} className="relative group border rounded-md overflow-hidden bg-muted/30">
+                      <div
+                        key={ev.id}
+                        className="relative group border rounded-md overflow-hidden bg-muted/30"
+                      >
                         {ev.tipo === "foto" && ev.url ? (
                           <a href={ev.url} target="_blank" rel="noreferrer">
-                            <img src={ev.url} alt={ev.legenda ?? "Evidência"} className="w-full h-28 object-cover" />
+                            <img
+                              src={ev.url}
+                              alt={ev.legenda ?? "Evidência"}
+                              className="w-full h-28 object-cover"
+                            />
                           </a>
                         ) : ev.tipo === "video" && ev.url ? (
                           <video src={ev.url} controls className="w-full h-28 object-cover" />
                         ) : (
-                          <a href={ev.url ?? "#"} target="_blank" rel="noreferrer" className="flex flex-col items-center justify-center h-28 text-muted-foreground">
+                          <a
+                            href={ev.url ?? "#"}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex flex-col items-center justify-center h-28 text-muted-foreground"
+                          >
                             <FileIcon className="h-6 w-6" />
                             <span className="text-xs mt-1">Arquivo</span>
                           </a>
                         )}
                         <div className="absolute top-1 left-1 bg-background/80 rounded px-1 py-0.5 text-xs flex items-center gap-1">
-                          {ev.tipo === "foto" ? <ImageIcon className="h-3 w-3" /> : ev.tipo === "video" ? <Video className="h-3 w-3" /> : <FileIcon className="h-3 w-3" />}
+                          {ev.tipo === "foto" ? (
+                            <ImageIcon className="h-3 w-3" />
+                          ) : ev.tipo === "video" ? (
+                            <Video className="h-3 w-3" />
+                          ) : (
+                            <FileIcon className="h-3 w-3" />
+                          )}
                         </div>
                         <button
                           type="button"
@@ -744,17 +912,29 @@ function OSPage() {
                 )}
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground border rounded-lg p-3">Salve a OS para poder anexar fotos e vídeos como evidência.</p>
+              <p className="text-xs text-muted-foreground border rounded-lg p-3">
+                Salve a OS para poder anexar fotos e vídeos como evidência.
+              </p>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="observacoes_cliente">Observações do cliente</Label>
-                <Textarea id="observacoes_cliente" name="observacoes_cliente" defaultValue={editing?.observacoes_cliente ?? ""} rows={2} />
+                <Textarea
+                  id="observacoes_cliente"
+                  name="observacoes_cliente"
+                  defaultValue={editing?.observacoes_cliente ?? ""}
+                  rows={2}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="observacoes_internas">Observações internas</Label>
-                <Textarea id="observacoes_internas" name="observacoes_internas" defaultValue={editing?.observacoes_internas ?? ""} rows={2} />
+                <Textarea
+                  id="observacoes_internas"
+                  name="observacoes_internas"
+                  defaultValue={editing?.observacoes_internas ?? ""}
+                  rows={2}
+                />
               </div>
             </div>
 

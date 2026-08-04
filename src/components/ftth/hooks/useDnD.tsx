@@ -3,35 +3,30 @@ import { createContext, useContext, useState } from "react";
 type DragType = string | null;
 
 interface DnDContextType {
-    draggedType: DragType;
-    setDraggedType: (type: DragType) => void;
+  draggedType: DragType;
+  setDraggedType: (type: DragType) => void;
 }
 
 const DnDContext = createContext<DnDContextType>({
-    draggedType: null,
-    setDraggedType: () => { },
+  draggedType: null,
+  setDraggedType: () => {},
 });
 
-export function DnDProvider({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
-    const [draggedType, setDraggedType] = useState<DragType>(null);
+export function DnDProvider({ children }: { children: React.ReactNode }) {
+  const [draggedType, setDraggedType] = useState<DragType>(null);
 
-    return (
-        <DnDContext.Provider
-            value= {{
+  return (
+    <DnDContext.Provider
+      value={{
         draggedType,
-            setDraggedType,
-            }
-}
-        >
-    { children }
+        setDraggedType,
+      }}
+    >
+      {children}
     </DnDContext.Provider>
-    );
+  );
 }
 
 export function useDnD() {
-    return useContext(DnDContext);
+  return useContext(DnDContext);
 }

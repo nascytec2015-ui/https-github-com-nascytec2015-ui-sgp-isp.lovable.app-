@@ -1,114 +1,60 @@
 import React from "react";
 import { Handle, Position } from "reactflow";
 
-
 interface SplitterNodeProps {
+  data: {
+    label?: string;
 
-    data: {
+    portasSaida?: 2 | 4 | 8 | 16 | 32 | 64;
 
-        label?: string;
-
-        portasSaida?:
-        2 |
-        4 |
-        8 |
-        16 |
-        32 |
-        64;
-
-        loss?: number;
-
-    };
-
+    loss?: number;
+  };
 }
 
 const SPLITTER_LOSS: Record<number, number> = {
-    2: 3.5,
-    4: 7.2,
-    8: 10.5,
-    16: 13.5,
-    32: 17
+  2: 3.5,
+  4: 7.2,
+  8: 10.5,
+  16: 13.5,
+  32: 17,
 };
 
-export default function SplitterNode({
-    data
-}: SplitterNodeProps) {
+export default function SplitterNode({ data }: SplitterNodeProps) {
+  const ratio = data.portasSaida ?? 8;
 
+  const loss = data.loss ?? SPLITTER_LOSS[ratio];
 
-    const ratio =
-        data.portasSaida ?? 8;
+  return (
+    <div
+      style={{
+        width: 160,
 
+        padding: 12,
 
+        borderRadius: 10,
 
-    const loss =
-        data.loss ??
-        SPLITTER_LOSS[ratio];
+        background: "#111827",
 
-    return (
+        color: "#fff",
 
-        <div
-            style={{
+        border: "2px solid #22c55e",
 
-                width: 160,
+        textAlign: "center",
+      }}
+    >
+      <Handle type="target" position={Position.Left} />
 
-                padding: 12,
+      <strong>{data.label ?? "Splitter"}</strong>
 
-                borderRadius: 10,
+      <div>1:{ratio}</div>
 
-                background: "#111827",
+      <div>Loss: -{loss} dB</div>
 
-                color: "#fff",
+      <Handle
+        type="source"
 
-                border: "2px solid #22c55e",
-
-                textAlign: "center"
-
-            }}
-        >
-
-
-            <Handle
-                type="target"
-                position={Position.Left}
-            />
-
-
-
-            <strong>
-                {data.label ?? "Splitter"}
-            </strong>
-
-
-
-            <div>
-
-                1:{ratio}
-
-            </div>
-
-
-
-            <div>
-
-                Loss:
-                {" "}
-                -{loss} dB
-
-            </div>
-
-
-
-            <Handle
-
-                type="source"
-
-                position={Position.Right}
-
-            />
-
-
-        </div>
-
-    );
-
+        position={Position.Right}
+      />
+    </div>
+  );
 }
