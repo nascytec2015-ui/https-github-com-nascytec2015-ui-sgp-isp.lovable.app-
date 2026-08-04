@@ -1,5 +1,8 @@
 import React from "react";
+
 import type { EquipmentItem } from "./data/equipments";
+
+import { useDnD } from "./hooks/useDnD";
 
 interface EquipmentCardProps {
     equipment: EquipmentItem;
@@ -10,21 +13,25 @@ export default function EquipmentCard({
     equipment,
     onClick,
 }: EquipmentCardProps) {
+    const { setDraggedType } = useDnD();
+
     return (
         <button
+            draggable
+            onDragStart={() => setDraggedType(equipment.type)}
             onClick={() => onClick(equipment)}
             className="
-                w-full
-                rounded-lg
-                border
-                border-slate-700
-                bg-slate-900
-                hover:bg-slate-800
-                hover:border-cyan-500
-                transition
-                p-3
-                text-left
-            "
+        w-full
+        rounded-lg
+        border
+        border-slate-700
+        bg-slate-900
+        hover:bg-slate-800
+        hover:border-cyan-500
+        transition
+        p-3
+        text-left
+    "
         >
             <div className="flex items-center gap-3">
                 <div className="text-2xl">

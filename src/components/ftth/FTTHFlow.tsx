@@ -18,6 +18,7 @@ import EmendaNode from "./nodes/EmendaNode";
 import { canConnect } from "./connectionRules";
 import { signalColor } from "./utils/signalColor";
 
+import { useDnD } from "./hooks/useDnD";
 
 const nodeTypes = {
     router: RouterNode,
@@ -55,6 +56,8 @@ export default function FTTHFlow({
     powers,
     onSelectNode,
     onSelectEdge,
+
+    
 }: FTTHFlowProps) {
 
     const nodes: Node[] = (diagram.nodes ?? []).map((n: FNode) => {
