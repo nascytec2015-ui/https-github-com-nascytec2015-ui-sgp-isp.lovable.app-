@@ -51,7 +51,9 @@ export default function PropertiesPanel({
           <div className="space-y-3">
             <div>
               <div className="text-sm text-muted-foreground">Nó selecionado</div>
-              <div className="font-semibold">{String(selectedNode.data?.label ?? "Sem rótulo") }</div>
+              <div className="font-semibold">
+                {String(selectedNode.data?.label ?? "Sem rótulo")}
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -172,4 +174,3 @@ export default function PropertiesPanel({
     </aside>
   );
 }
-
