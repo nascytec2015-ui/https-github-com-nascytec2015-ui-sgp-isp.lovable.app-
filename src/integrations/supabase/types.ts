@@ -1,750 +1,775 @@
-﻿export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+﻿export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
-  }
+    PostgrestVersion: "14.5";
+  };
   public: {
     Tables: {
       clientes: {
         Row: {
-          bairro: string | null
-          cep: string | null
-          cidade: string | null
-          cpf_cnpj: string | null
-          created_at: string
-          created_by: string | null
-          data_ativacao: string | null
-          data_cancelamento: string | null
-          email: string | null
-          endereco: string | null
-          estado: string | null
-          id: string
-          ip_fixo: string | null
-          nome: string
-          numero: string | null
-          observacoes: string | null
-          plano_id: string | null
-          ppoe_pass: string | null
-          ppoe_user: string | null
-          status: Database["public"]["Enums"]["cliente_status"]
-          telefone: string | null
-          updated_at: string
-        }
+          bairro: string | null;
+          cep: string | null;
+          cidade: string | null;
+          cpf_cnpj: string | null;
+          created_at: string;
+          created_by: string | null;
+          data_ativacao: string | null;
+          data_cancelamento: string | null;
+          email: string | null;
+          endereco: string | null;
+          estado: string | null;
+          id: string;
+          ip_fixo: string | null;
+          nome: string;
+          numero: string | null;
+          observacoes: string | null;
+          plano_id: string | null;
+          ppoe_pass: string | null;
+          ppoe_user: string | null;
+          status: Database["public"]["Enums"]["cliente_status"];
+          telefone: string | null;
+          updated_at: string;
+        };
         Insert: {
-          bairro?: string | null
-          cep?: string | null
-          cidade?: string | null
-          cpf_cnpj?: string | null
-          created_at?: string
-          created_by?: string | null
-          data_ativacao?: string | null
-          data_cancelamento?: string | null
-          email?: string | null
-          endereco?: string | null
-          estado?: string | null
-          id?: string
-          ip_fixo?: string | null
-          nome: string
-          numero?: string | null
-          observacoes?: string | null
-          plano_id?: string | null
-          ppoe_pass?: string | null
-          ppoe_user?: string | null
-          status?: Database["public"]["Enums"]["cliente_status"]
-          telefone?: string | null
-          updated_at?: string
-        }
+          bairro?: string | null;
+          cep?: string | null;
+          cidade?: string | null;
+          cpf_cnpj?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          data_ativacao?: string | null;
+          data_cancelamento?: string | null;
+          email?: string | null;
+          endereco?: string | null;
+          estado?: string | null;
+          id?: string;
+          ip_fixo?: string | null;
+          nome: string;
+          numero?: string | null;
+          observacoes?: string | null;
+          plano_id?: string | null;
+          ppoe_pass?: string | null;
+          ppoe_user?: string | null;
+          status?: Database["public"]["Enums"]["cliente_status"];
+          telefone?: string | null;
+          updated_at?: string;
+        };
         Update: {
-          bairro?: string | null
-          cep?: string | null
-          cidade?: string | null
-          cpf_cnpj?: string | null
-          created_at?: string
-          created_by?: string | null
-          data_ativacao?: string | null
-          data_cancelamento?: string | null
-          email?: string | null
-          endereco?: string | null
-          estado?: string | null
-          id?: string
-          ip_fixo?: string | null
-          nome?: string
-          numero?: string | null
-          observacoes?: string | null
-          plano_id?: string | null
-          ppoe_pass?: string | null
-          ppoe_user?: string | null
-          status?: Database["public"]["Enums"]["cliente_status"]
-          telefone?: string | null
-          updated_at?: string
-        }
+          bairro?: string | null;
+          cep?: string | null;
+          cidade?: string | null;
+          cpf_cnpj?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          data_ativacao?: string | null;
+          data_cancelamento?: string | null;
+          email?: string | null;
+          endereco?: string | null;
+          estado?: string | null;
+          id?: string;
+          ip_fixo?: string | null;
+          nome?: string;
+          numero?: string | null;
+          observacoes?: string | null;
+          plano_id?: string | null;
+          ppoe_pass?: string | null;
+          ppoe_user?: string | null;
+          status?: Database["public"]["Enums"]["cliente_status"];
+          telefone?: string | null;
+          updated_at?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "clientes_plano_id_fkey"
-            columns: ["plano_id"]
-            isOneToOne: false
-            referencedRelation: "planos"
-            referencedColumns: ["id"]
+            foreignKeyName: "clientes_plano_id_fkey";
+            columns: ["plano_id"];
+            isOneToOne: false;
+            referencedRelation: "planos";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       ctos: {
         Row: {
-          capacidade: number
-          created_at: string
-          created_by: string | null
-          endereco: string | null
-          id: string
-          latitude: number | null
-          longitude: number | null
-          nome: string
-          observacoes: string | null
-          olt_id: string | null
-          pon: string | null
-          status: string
-          updated_at: string
-        }
+          capacidade: number;
+          created_at: string;
+          created_by: string | null;
+          endereco: string | null;
+          id: string;
+          latitude: number | null;
+          longitude: number | null;
+          nome: string;
+          observacoes: string | null;
+          olt_id: string | null;
+          pon: string | null;
+          status: string;
+          updated_at: string;
+        };
         Insert: {
-          capacidade?: number
-          created_at?: string
-          created_by?: string | null
-          endereco?: string | null
-          id?: string
-          latitude?: number | null
-          longitude?: number | null
-          nome: string
-          observacoes?: string | null
-          olt_id?: string | null
-          pon?: string | null
-          status?: string
-          updated_at?: string
-        }
+          capacidade?: number;
+          created_at?: string;
+          created_by?: string | null;
+          endereco?: string | null;
+          id?: string;
+          latitude?: number | null;
+          longitude?: number | null;
+          nome: string;
+          observacoes?: string | null;
+          olt_id?: string | null;
+          pon?: string | null;
+          status?: string;
+          updated_at?: string;
+        };
         Update: {
-          capacidade?: number
-          created_at?: string
-          created_by?: string | null
-          endereco?: string | null
-          id?: string
-          latitude?: number | null
-          longitude?: number | null
-          nome?: string
-          observacoes?: string | null
-          olt_id?: string | null
-          pon?: string | null
-          status?: string
-          updated_at?: string
-        }
+          capacidade?: number;
+          created_at?: string;
+          created_by?: string | null;
+          endereco?: string | null;
+          id?: string;
+          latitude?: number | null;
+          longitude?: number | null;
+          nome?: string;
+          observacoes?: string | null;
+          olt_id?: string | null;
+          pon?: string | null;
+          status?: string;
+          updated_at?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "ctos_olt_id_fkey"
-            columns: ["olt_id"]
-            isOneToOne: false
-            referencedRelation: "olts"
-            referencedColumns: ["id"]
+            foreignKeyName: "ctos_olt_id_fkey";
+            columns: ["olt_id"];
+            isOneToOne: false;
+            referencedRelation: "olts";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       fibra_rotas: {
         Row: {
-          cor: string | null
-          created_at: string
-          created_by: string | null
-          destino_lat: number
-          destino_lng: number
-          id: string
-          nome: string | null
-          observacoes: string | null
-          origem_lat: number
-          origem_lng: number
-          tipo: string
-          updated_at: string
-        }
+          cor: string | null;
+          created_at: string;
+          created_by: string | null;
+          destino_lat: number;
+          destino_lng: number;
+          id: string;
+          nome: string | null;
+          observacoes: string | null;
+          origem_lat: number;
+          origem_lng: number;
+          tipo: string;
+          updated_at: string;
+        };
         Insert: {
-          cor?: string | null
-          created_at?: string
-          created_by?: string | null
-          destino_lat: number
-          destino_lng: number
-          id?: string
-          nome?: string | null
-          observacoes?: string | null
-          origem_lat: number
-          origem_lng: number
-          tipo?: string
-          updated_at?: string
-        }
+          cor?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          destino_lat: number;
+          destino_lng: number;
+          id?: string;
+          nome?: string | null;
+          observacoes?: string | null;
+          origem_lat: number;
+          origem_lng: number;
+          tipo?: string;
+          updated_at?: string;
+        };
         Update: {
-          cor?: string | null
-          created_at?: string
-          created_by?: string | null
-          destino_lat?: number
-          destino_lng?: number
-          id?: string
-          nome?: string | null
-          observacoes?: string | null
-          origem_lat?: number
-          origem_lng?: number
-          tipo?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
+          cor?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          destino_lat?: number;
+          destino_lng?: number;
+          id?: string;
+          nome?: string | null;
+          observacoes?: string | null;
+          origem_lat?: number;
+          origem_lng?: number;
+          tipo?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       olts: {
         Row: {
-          created_at: string
-          created_by: string | null
-          endereco: string | null
-          fabricante: string | null
-          host: string | null
-          id: string
-          latitude: number | null
-          longitude: number | null
-          modelo: string | null
-          nome: string
-          observacoes: string | null
-          porta_gerencia: number | null
-          status: string
-          ultimo_check: string | null
-          updated_at: string
-          usuario: string | null
-        }
+          created_at: string;
+          created_by: string | null;
+          endereco: string | null;
+          fabricante: string | null;
+          host: string | null;
+          id: string;
+          latitude: number | null;
+          longitude: number | null;
+          modelo: string | null;
+          nome: string;
+          observacoes: string | null;
+          porta_gerencia: number | null;
+          status: string;
+          ultimo_check: string | null;
+          updated_at: string;
+          usuario: string | null;
+        };
         Insert: {
-          created_at?: string
-          created_by?: string | null
-          endereco?: string | null
-          fabricante?: string | null
-          host?: string | null
-          id?: string
-          latitude?: number | null
-          longitude?: number | null
-          modelo?: string | null
-          nome: string
-          observacoes?: string | null
-          porta_gerencia?: number | null
-          status?: string
-          ultimo_check?: string | null
-          updated_at?: string
-          usuario?: string | null
-        }
+          created_at?: string;
+          created_by?: string | null;
+          endereco?: string | null;
+          fabricante?: string | null;
+          host?: string | null;
+          id?: string;
+          latitude?: number | null;
+          longitude?: number | null;
+          modelo?: string | null;
+          nome: string;
+          observacoes?: string | null;
+          porta_gerencia?: number | null;
+          status?: string;
+          ultimo_check?: string | null;
+          updated_at?: string;
+          usuario?: string | null;
+        };
         Update: {
-          created_at?: string
-          created_by?: string | null
-          endereco?: string | null
-          fabricante?: string | null
-          host?: string | null
-          id?: string
-          latitude?: number | null
-          longitude?: number | null
-          modelo?: string | null
-          nome?: string
-          observacoes?: string | null
-          porta_gerencia?: number | null
-          status?: string
-          ultimo_check?: string | null
-          updated_at?: string
-          usuario?: string | null
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          created_by?: string | null;
+          endereco?: string | null;
+          fabricante?: string | null;
+          host?: string | null;
+          id?: string;
+          latitude?: number | null;
+          longitude?: number | null;
+          modelo?: string | null;
+          nome?: string;
+          observacoes?: string | null;
+          porta_gerencia?: number | null;
+          status?: string;
+          ultimo_check?: string | null;
+          updated_at?: string;
+          usuario?: string | null;
+        };
+        Relationships: [];
+      };
       onus: {
         Row: {
-          cliente_id: string | null
-          created_at: string
-          created_by: string | null
-          cto_id: string | null
-          id: string
-          modelo: string | null
-          observacoes: string | null
-          porta: number | null
-          serial: string | null
-          sinal_rx: number | null
-          sinal_tx: number | null
-          status: string
-          ultimo_check: string | null
-          updated_at: string
-        }
+          cliente_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          cto_id: string | null;
+          id: string;
+          modelo: string | null;
+          observacoes: string | null;
+          porta: number | null;
+          serial: string | null;
+          sinal_rx: number | null;
+          sinal_tx: number | null;
+          status: string;
+          ultimo_check: string | null;
+          updated_at: string;
+        };
         Insert: {
-          cliente_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          cto_id?: string | null
-          id?: string
-          modelo?: string | null
-          observacoes?: string | null
-          porta?: number | null
-          serial?: string | null
-          sinal_rx?: number | null
-          sinal_tx?: number | null
-          status?: string
-          ultimo_check?: string | null
-          updated_at?: string
-        }
+          cliente_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          cto_id?: string | null;
+          id?: string;
+          modelo?: string | null;
+          observacoes?: string | null;
+          porta?: number | null;
+          serial?: string | null;
+          sinal_rx?: number | null;
+          sinal_tx?: number | null;
+          status?: string;
+          ultimo_check?: string | null;
+          updated_at?: string;
+        };
         Update: {
-          cliente_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          cto_id?: string | null
-          id?: string
-          modelo?: string | null
-          observacoes?: string | null
-          porta?: number | null
-          serial?: string | null
-          sinal_rx?: number | null
-          sinal_tx?: number | null
-          status?: string
-          ultimo_check?: string | null
-          updated_at?: string
-        }
+          cliente_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          cto_id?: string | null;
+          id?: string;
+          modelo?: string | null;
+          observacoes?: string | null;
+          porta?: number | null;
+          serial?: string | null;
+          sinal_rx?: number | null;
+          sinal_tx?: number | null;
+          status?: string;
+          ultimo_check?: string | null;
+          updated_at?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "onus_cliente_id_fkey"
-            columns: ["cliente_id"]
-            isOneToOne: false
-            referencedRelation: "clientes"
-            referencedColumns: ["id"]
+            foreignKeyName: "onus_cliente_id_fkey";
+            columns: ["cliente_id"];
+            isOneToOne: false;
+            referencedRelation: "clientes";
+            referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "onus_cto_id_fkey"
-            columns: ["cto_id"]
-            isOneToOne: false
-            referencedRelation: "ctos"
-            referencedColumns: ["id"]
+            foreignKeyName: "onus_cto_id_fkey";
+            columns: ["cto_id"];
+            isOneToOne: false;
+            referencedRelation: "ctos";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       ordens_servico: {
         Row: {
-          assinatura_cliente: string | null
-          cliente_id: string
-          created_at: string
-          created_by: string | null
-          cto_ref: string | null
-          data_agendada: string | null
-          data_conclusao: string | null
-          data_inicio: string | null
-          descricao: string
-          endereco_atendimento: string | null
-          id: string
-          numero: number
-          observacoes_cliente: string | null
-          observacoes_internas: string | null
-          porta_cto: number | null
-          projeto_ftth_id: string | null
-          status: Database["public"]["Enums"]["os_status"]
-          tecnico_id: string | null
-          tipo: Database["public"]["Enums"]["os_tipo"]
-          updated_at: string
-        }
+          assinatura_cliente: string | null;
+          cliente_id: string;
+          created_at: string;
+          created_by: string | null;
+          cto_ref: string | null;
+          data_agendada: string | null;
+          data_conclusao: string | null;
+          data_inicio: string | null;
+          descricao: string;
+          endereco_atendimento: string | null;
+          id: string;
+          numero: number;
+          observacoes_cliente: string | null;
+          observacoes_internas: string | null;
+          porta_cto: number | null;
+          projeto_ftth_id: string | null;
+          status: Database["public"]["Enums"]["os_status"];
+          tecnico_id: string | null;
+          tipo: Database["public"]["Enums"]["os_tipo"];
+          updated_at: string;
+        };
         Insert: {
-          assinatura_cliente?: string | null
-          cliente_id: string
-          created_at?: string
-          created_by?: string | null
-          cto_ref?: string | null
-          data_agendada?: string | null
-          data_conclusao?: string | null
-          data_inicio?: string | null
-          descricao: string
-          endereco_atendimento?: string | null
-          id?: string
-          numero?: number
-          observacoes_cliente?: string | null
-          observacoes_internas?: string | null
-          porta_cto?: number | null
-          projeto_ftth_id?: string | null
-          status?: Database["public"]["Enums"]["os_status"]
-          tecnico_id?: string | null
-          tipo: Database["public"]["Enums"]["os_tipo"]
-          updated_at?: string
-        }
+          assinatura_cliente?: string | null;
+          cliente_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          cto_ref?: string | null;
+          data_agendada?: string | null;
+          data_conclusao?: string | null;
+          data_inicio?: string | null;
+          descricao: string;
+          endereco_atendimento?: string | null;
+          id?: string;
+          numero?: number;
+          observacoes_cliente?: string | null;
+          observacoes_internas?: string | null;
+          porta_cto?: number | null;
+          projeto_ftth_id?: string | null;
+          status?: Database["public"]["Enums"]["os_status"];
+          tecnico_id?: string | null;
+          tipo: Database["public"]["Enums"]["os_tipo"];
+          updated_at?: string;
+        };
         Update: {
-          assinatura_cliente?: string | null
-          cliente_id?: string
-          created_at?: string
-          created_by?: string | null
-          cto_ref?: string | null
-          data_agendada?: string | null
-          data_conclusao?: string | null
-          data_inicio?: string | null
-          descricao?: string
-          endereco_atendimento?: string | null
-          id?: string
-          numero?: number
-          observacoes_cliente?: string | null
-          observacoes_internas?: string | null
-          porta_cto?: number | null
-          projeto_ftth_id?: string | null
-          status?: Database["public"]["Enums"]["os_status"]
-          tecnico_id?: string | null
-          tipo?: Database["public"]["Enums"]["os_tipo"]
-          updated_at?: string
-        }
+          assinatura_cliente?: string | null;
+          cliente_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          cto_ref?: string | null;
+          data_agendada?: string | null;
+          data_conclusao?: string | null;
+          data_inicio?: string | null;
+          descricao?: string;
+          endereco_atendimento?: string | null;
+          id?: string;
+          numero?: number;
+          observacoes_cliente?: string | null;
+          observacoes_internas?: string | null;
+          porta_cto?: number | null;
+          projeto_ftth_id?: string | null;
+          status?: Database["public"]["Enums"]["os_status"];
+          tecnico_id?: string | null;
+          tipo?: Database["public"]["Enums"]["os_tipo"];
+          updated_at?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "ordens_servico_cliente_id_fkey"
-            columns: ["cliente_id"]
-            isOneToOne: false
-            referencedRelation: "clientes"
-            referencedColumns: ["id"]
+            foreignKeyName: "ordens_servico_cliente_id_fkey";
+            columns: ["cliente_id"];
+            isOneToOne: false;
+            referencedRelation: "clientes";
+            referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "ordens_servico_projeto_ftth_id_fkey"
-            columns: ["projeto_ftth_id"]
-            isOneToOne: false
-            referencedRelation: "projetos_ftth"
-            referencedColumns: ["id"]
+            foreignKeyName: "ordens_servico_projeto_ftth_id_fkey";
+            columns: ["projeto_ftth_id"];
+            isOneToOne: false;
+            referencedRelation: "projetos_ftth";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       os_evidencias: {
         Row: {
-          created_at: string
-          id: string
-          legenda: string | null
-          mime: string | null
-          os_id: string
-          path: string
-          tamanho: number | null
-          tipo: string
-          uploaded_by: string | null
-        }
+          created_at: string;
+          id: string;
+          legenda: string | null;
+          mime: string | null;
+          os_id: string;
+          path: string;
+          tamanho: number | null;
+          tipo: string;
+          uploaded_by: string | null;
+        };
         Insert: {
-          created_at?: string
-          id?: string
-          legenda?: string | null
-          mime?: string | null
-          os_id: string
-          path: string
-          tamanho?: number | null
-          tipo: string
-          uploaded_by?: string | null
-        }
+          created_at?: string;
+          id?: string;
+          legenda?: string | null;
+          mime?: string | null;
+          os_id: string;
+          path: string;
+          tamanho?: number | null;
+          tipo: string;
+          uploaded_by?: string | null;
+        };
         Update: {
-          created_at?: string
-          id?: string
-          legenda?: string | null
-          mime?: string | null
-          os_id?: string
-          path?: string
-          tamanho?: number | null
-          tipo?: string
-          uploaded_by?: string | null
-        }
+          created_at?: string;
+          id?: string;
+          legenda?: string | null;
+          mime?: string | null;
+          os_id?: string;
+          path?: string;
+          tamanho?: number | null;
+          tipo?: string;
+          uploaded_by?: string | null;
+        };
         Relationships: [
           {
-            foreignKeyName: "os_evidencias_os_id_fkey"
-            columns: ["os_id"]
-            isOneToOne: false
-            referencedRelation: "ordens_servico"
-            referencedColumns: ["id"]
+            foreignKeyName: "os_evidencias_os_id_fkey";
+            columns: ["os_id"];
+            isOneToOne: false;
+            referencedRelation: "ordens_servico";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       os_materiais: {
         Row: {
-          created_at: string
-          descricao: string
-          id: string
-          os_id: string
-          quantidade: number
-          unidade: string | null
-          valor_unitario: number | null
-        }
+          created_at: string;
+          descricao: string;
+          id: string;
+          os_id: string;
+          quantidade: number;
+          unidade: string | null;
+          valor_unitario: number | null;
+        };
         Insert: {
-          created_at?: string
-          descricao: string
-          id?: string
-          os_id: string
-          quantidade?: number
-          unidade?: string | null
-          valor_unitario?: number | null
-        }
+          created_at?: string;
+          descricao: string;
+          id?: string;
+          os_id: string;
+          quantidade?: number;
+          unidade?: string | null;
+          valor_unitario?: number | null;
+        };
         Update: {
-          created_at?: string
-          descricao?: string
-          id?: string
-          os_id?: string
-          quantidade?: number
-          unidade?: string | null
-          valor_unitario?: number | null
-        }
+          created_at?: string;
+          descricao?: string;
+          id?: string;
+          os_id?: string;
+          quantidade?: number;
+          unidade?: string | null;
+          valor_unitario?: number | null;
+        };
         Relationships: [
           {
-            foreignKeyName: "os_materiais_os_id_fkey"
-            columns: ["os_id"]
-            isOneToOne: false
-            referencedRelation: "ordens_servico"
-            referencedColumns: ["id"]
+            foreignKeyName: "os_materiais_os_id_fkey";
+            columns: ["os_id"];
+            isOneToOne: false;
+            referencedRelation: "ordens_servico";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       planos: {
         Row: {
-          ativo: boolean
-          created_at: string
-          id: string
-          nome: string
-          updated_at: string
-          valor: number
-          velocidade_down: number
-          velocidade_up: number
-        }
+          ativo: boolean;
+          created_at: string;
+          id: string;
+          nome: string;
+          updated_at: string;
+          valor: number;
+          velocidade_down: number;
+          velocidade_up: number;
+        };
         Insert: {
-          ativo?: boolean
-          created_at?: string
-          id?: string
-          nome: string
-          updated_at?: string
-          valor?: number
-          velocidade_down?: number
-          velocidade_up?: number
-        }
+          ativo?: boolean;
+          created_at?: string;
+          id?: string;
+          nome: string;
+          updated_at?: string;
+          valor?: number;
+          velocidade_down?: number;
+          velocidade_up?: number;
+        };
         Update: {
-          ativo?: boolean
-          created_at?: string
-          id?: string
-          nome?: string
-          updated_at?: string
-          valor?: number
-          velocidade_down?: number
-          velocidade_up?: number
-        }
-        Relationships: []
-      }
+          ativo?: boolean;
+          created_at?: string;
+          id?: string;
+          nome?: string;
+          updated_at?: string;
+          valor?: number;
+          velocidade_down?: number;
+          velocidade_up?: number;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
-          created_at: string
-          full_name: string | null
-          id: string
-          updated_at: string
-        }
+          created_at: string;
+          full_name: string | null;
+          id: string;
+          updated_at: string;
+        };
         Insert: {
-          created_at?: string
-          full_name?: string | null
-          id: string
-          updated_at?: string
-        }
+          created_at?: string;
+          full_name?: string | null;
+          id: string;
+          updated_at?: string;
+        };
         Update: {
-          created_at?: string
-          full_name?: string | null
-          id?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          full_name?: string | null;
+          id?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       projetos_ftth: {
         Row: {
-          created_at: string
-          created_by: string | null
-          data: Json
-          descricao: string | null
-          id: string
-          nome: string
-          olt_tx_dbm: number
-          updated_at: string
-        }
+          created_at: string;
+          created_by: string | null;
+          data: Json;
+          descricao: string | null;
+          id: string;
+          nome: string;
+          olt_tx_dbm: number;
+          updated_at: string;
+        };
         Insert: {
-          created_at?: string
-          created_by?: string | null
-          data?: Json
-          descricao?: string | null
-          id?: string
-          nome: string
-          olt_tx_dbm?: number
-          updated_at?: string
-        }
+          created_at?: string;
+          created_by?: string | null;
+          data?: Json;
+          descricao?: string | null;
+          id?: string;
+          nome: string;
+          olt_tx_dbm?: number;
+          updated_at?: string;
+        };
         Update: {
-          created_at?: string
-          created_by?: string | null
-          data?: Json
-          descricao?: string | null
-          id?: string
-          nome?: string
-          olt_tx_dbm?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          created_by?: string | null;
+          data?: Json;
+          descricao?: string | null;
+          id?: string;
+          nome?: string;
+          olt_tx_dbm?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       user_roles: {
         Row: {
-          created_at: string
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
+          created_at: string;
+          id: string;
+          role: Database["public"]["Enums"]["app_role"];
+          user_id: string;
+        };
         Insert: {
-          created_at?: string
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
+          created_at?: string;
+          id?: string;
+          role: Database["public"]["Enums"]["app_role"];
+          user_id: string;
+        };
         Update: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: []
-      }
-    }
+          created_at?: string;
+          id?: string;
+          role?: Database["public"]["Enums"]["app_role"];
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+    };
     Views: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     Functions: {
-      has_any_role: { Args: { _user_id: string }; Returns: boolean }
+      has_any_role: { Args: { _user_id: string }; Returns: boolean };
       has_role: {
         Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
-    }
+          _role: Database["public"]["Enums"]["app_role"];
+          _user_id: string;
+        };
+        Returns: boolean;
+      };
+    };
     Enums: {
-      app_role: "admin" | "tecnico" | "atendente"
-      cliente_status: "ativo" | "bloqueado" | "cancelado"
-      os_status: "agendada" | "aberta" | "em_execucao" | "em_deslocamento" | "aguardando_material" | "concluida" | "cancelada"
-      os_tipo: "instalacao" | "reparo" | "manutencao" | "mudanca_endereco" | "desativacao" | "visita_tecnica" | "outros"
-    }
+      app_role: "admin" | "tecnico" | "atendente";
+      cliente_status: "ativo" | "bloqueado" | "cancelado";
+      os_status:
+        | "agendada"
+        | "aberta"
+        | "em_execucao"
+        | "em_deslocamento"
+        | "aguardando_material"
+        | "concluida"
+        | "cancelada";
+      os_tipo:
+        | "instalacao"
+        | "reparo"
+        | "manutencao"
+        | "mudanca_endereco"
+        | "desativacao"
+        | "visita_tecnica"
+        | "outros";
+    };
     CompositeTypes: {
-      [_ in never]: never
-    }
-  }
-}
+      [_ in never]: never;
+    };
+  };
+};
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">;
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">];
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-  | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-  | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
   }
-  ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-    DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-  : never = never,
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-    DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R;
     }
-  ? R
-  : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-    DefaultSchema["Views"])
-  ? (DefaultSchema["Tables"] &
-    DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-      Row: infer R
-    }
-  ? R
-  : never
-  : never
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] & DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R;
+      }
+      ? R
+      : never
+    : never;
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-  | keyof DefaultSchema["Tables"]
-  | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
   }
-  ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-  : never = never,
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-    Insert: infer I
-  }
-  ? I
-  : never
+      Insert: infer I;
+    }
+    ? I
+    : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-    Insert: infer I
-  }
-  ? I
-  : never
-  : never
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I;
+      }
+      ? I
+      : never
+    : never;
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-  | keyof DefaultSchema["Tables"]
-  | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
   }
-  ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-  : never = never,
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-    Update: infer U
-  }
-  ? U
-  : never
+      Update: infer U;
+    }
+    ? U
+    : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-    Update: infer U
-  }
-  ? U
-  : never
-  : never
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U;
+      }
+      ? U
+      : never
+    : never;
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-  | keyof DefaultSchema["Enums"]
-  | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    keyof DefaultSchema["Enums"] | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
   }
-  ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-  : never = never,
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-  ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-  : never
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never;
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-  | keyof DefaultSchema["CompositeTypes"]
-  | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    keyof DefaultSchema["CompositeTypes"] | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
   }
-  ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-  : never = never,
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-  ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-  : never
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never;
 
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["agendada", "aberta", "em_execucao", "em_deslocamento", "aguardando_material", "concluida", "cancelada"],
-      os_status: ["agendada", "aberta", "em_execucao", "em_deslocamento", "aguardando_material", "concluida", "cancelada"],
-      os_tipo: ["instalacao", "reparo", "manutencao", "mudanca_endereco", "desativacao", "visita_tecnica",
-      "outros"],
+      app_role: [
+        "agendada",
+        "aberta",
+        "em_execucao",
+        "em_deslocamento",
+        "aguardando_material",
+        "concluida",
+        "cancelada",
+      ],
+      os_status: [
+        "agendada",
+        "aberta",
+        "em_execucao",
+        "em_deslocamento",
+        "aguardando_material",
+        "concluida",
+        "cancelada",
+      ],
+      os_tipo: [
+        "instalacao",
+        "reparo",
+        "manutencao",
+        "mudanca_endereco",
+        "desativacao",
+        "visita_tecnica",
+        "outros",
+      ],
     },
   },
-} as const
+} as const;

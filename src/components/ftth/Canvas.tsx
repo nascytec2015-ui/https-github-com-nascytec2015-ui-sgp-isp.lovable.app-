@@ -16,10 +16,6 @@ import ReactFlow, {
 
 import "reactflow/dist/style.css";
 
-const initialNodes: Node[] = [];
-
-const initialEdges: Edge[] = [];
-
 interface CanvasProps {
   nodes: Node[];
   edges: Edge[];
@@ -99,9 +95,3 @@ export default function Canvas({ nodes, edges, setNodes, setEdges }: CanvasProps
     </div>
   );
 }
-
-
-
-
-
-

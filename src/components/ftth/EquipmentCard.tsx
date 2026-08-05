@@ -15,7 +15,11 @@ export default function EquipmentCard({ equipment, onClick }: EquipmentCardProps
   return (
     <button
       draggable
-      onDragStart={(event) => { event.dataTransfer.setData("application/reactflow", equipment.type); event.dataTransfer.effectAllowed = "move"; setDraggedType(equipment.type); }}
+      onDragStart={(event) => {
+        event.dataTransfer.setData("application/reactflow", equipment.type);
+        event.dataTransfer.effectAllowed = "move";
+        setDraggedType(equipment.type);
+      }}
       onClick={() => onClick(equipment)}
       className="
         w-full
@@ -46,6 +50,3 @@ export default function EquipmentCard({ equipment, onClick }: EquipmentCardProps
     </button>
   );
 }
-
-
-
