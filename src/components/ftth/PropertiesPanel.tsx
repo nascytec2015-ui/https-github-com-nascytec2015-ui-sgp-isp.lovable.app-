@@ -64,6 +64,69 @@ export default function PropertiesPanel({
               />
             </div>
 
+            {selectedNode?.type === "splitter" && (
+              <div className="space-y-2">
+                <Label htmlFor="splitter-ratio">Relação do splitter</Label>
+                <Input
+                  id="splitter-ratio"
+                  type="number"
+                  min={2}
+                  step={2}
+                  value={selectedNode.data?.ratio ?? 8}
+                  onChange={(event) => onUpdateNodeData?.({ ratio: Number(event.target.value) })}
+                />
+              </div>
+            )}
+
+            {selectedNode?.type === "cto" && (
+              <div className="space-y-2">
+                <Label htmlFor="cto-capacidade">Capacidade da CTO</Label>
+                <Input
+                  id="cto-capacidade"
+                  type="number"
+                  min={1}
+                  value={selectedNode.data?.capacidade ?? 8}
+                  onChange={(event) => onUpdateNodeData?.({ capacidade: Number(event.target.value) })}
+                />
+              </div>
+            )}
+
+            {selectedNode?.type === "emenda" && (
+              <div className="space-y-2">
+                <Label htmlFor="emenda-extra-loss">Perda extra (dB)</Label>
+                <Input
+                  id="emenda-extra-loss"
+                  type="number"
+                  min={0}
+                  step={0.1}
+                  value={selectedNode.data?.extra_loss_db ?? 0.1}
+                  onChange={(event) => onUpdateNodeData?.({ extra_loss_db: Number(event.target.value) })}
+                />
+              </div>
+            )}
+
+            {selectedNode?.data?.fabricante && (
+              <div className="space-y-2">
+                <Label htmlFor="node-fabricante">Fabricante</Label>
+                <Input
+                  id="node-fabricante"
+                  value={String(selectedNode.data.fabricante)}
+                  onChange={(event) => onUpdateNodeData?.({ fabricante: event.target.value })}
+                />
+              </div>
+            )}
+
+            {selectedNode?.data?.modelo && (
+              <div className="space-y-2">
+                <Label htmlFor="node-modelo">Modelo</Label>
+                <Input
+                  id="node-modelo"
+                  value={String(selectedNode.data.modelo)}
+                  onChange={(event) => onUpdateNodeData?.({ modelo: event.target.value })}
+                />
+              </div>
+            )}
+
             <div className="text-sm text-muted-foreground">
               Tipo: <span className="font-medium text-foreground">{selectedNode.type}</span>
             </div>
@@ -105,6 +168,7 @@ export default function PropertiesPanel({
     </aside>
   );
 }
+
 
 
 
