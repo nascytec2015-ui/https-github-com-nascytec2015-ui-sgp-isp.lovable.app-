@@ -19,6 +19,7 @@ export default function PropertiesPanel({
   selectedNode,
   selectedEdge,
   onUpdateNodeLabel,
+  onUpdateNodeData,
   onDeleteNode,
   onDeleteEdge,
 }: PropertiesPanelProps) {
@@ -168,6 +169,7 @@ export default function PropertiesPanel({
     </aside>
   );
 }
+
 
 
 
