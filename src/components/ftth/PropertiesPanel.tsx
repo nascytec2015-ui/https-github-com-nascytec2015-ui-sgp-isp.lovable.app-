@@ -69,7 +69,11 @@ export default function PropertiesPanel({
               ID: <span className="font-medium text-foreground break-all">{selectedNode.id}</span>
             </div>
             <div className="text-sm text-muted-foreground">
-              Posição: <span className="font-medium text-foreground">{Math.round(selectedNode.position?.x ?? 0)}, {Math.round(selectedNode.position?.y ?? 0)}</span>
+              Posição:{" "}
+              <span className="font-medium text-foreground">
+                {Math.round(selectedNode.position?.x ?? 0)},{" "}
+                {Math.round(selectedNode.position?.y ?? 0)}
+              </span>
             </div>
 
             <Button variant="destructive" onClick={() => onDeleteNode?.()}>
@@ -99,4 +103,3 @@ export default function PropertiesPanel({
     </aside>
   );
 }
-

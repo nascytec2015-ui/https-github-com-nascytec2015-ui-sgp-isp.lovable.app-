@@ -25,8 +25,14 @@ interface CanvasProps {
   onSelectEdge?: (id: string) => void;
 }
 
-
-export default function Canvas({ nodes, edges, setNodes, setEdges, onSelectNode, onSelectEdge }: CanvasProps) {
+export default function Canvas({
+  nodes,
+  edges,
+  setNodes,
+  setEdges,
+  onSelectNode,
+  onSelectEdge,
+}: CanvasProps) {
   const handleNodeClick = useCallback(
     (_event: MouseEvent, node: Node) => {
       onSelectNode?.(node.id);
@@ -114,7 +120,3 @@ export default function Canvas({ nodes, edges, setNodes, setEdges, onSelectNode,
     </div>
   );
 }
-
-
-
-

@@ -82,7 +82,9 @@ function ProjetistaFTTHPage() {
   const deleteSelectedNode = useCallback(() => {
     if (!selectedNodeId) return;
     setNodes((current) => current.filter((node) => node.id !== selectedNodeId));
-    setEdges((current) => current.filter((edge) => edge.source !== selectedNodeId && edge.target !== selectedNodeId));
+    setEdges((current) =>
+      current.filter((edge) => edge.source !== selectedNodeId && edge.target !== selectedNodeId),
+    );
     setSelectedNodeId(null);
   }, [selectedNodeId]);
 
