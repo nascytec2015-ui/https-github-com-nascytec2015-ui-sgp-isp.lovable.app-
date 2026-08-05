@@ -84,22 +84,9 @@ function ProjetistaFTTHPage() {
 
   const updateSelectedNodeLabel = useCallback(
     (label: string) => {
-      if (!selectedNodeId) return;
-      setNodes((current) =>
-        current.map((node) =>
-          node.id === selectedNodeId
-            ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  label,
-                },
-              }
-            : node,
-        ),
-      );
+      updateSelectedNodeData({ label });
     },
-    [selectedNodeId],
+    [updateSelectedNodeData],
   );
 
   const deleteSelectedNode = useCallback(() => {
@@ -148,4 +135,5 @@ function ProjetistaFTTHPage() {
     </div>
   );
 }
+
 
