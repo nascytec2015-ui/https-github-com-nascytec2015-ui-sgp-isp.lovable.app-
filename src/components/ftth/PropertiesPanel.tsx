@@ -22,10 +22,10 @@ export default function PropertiesPanel({
   onDeleteNode,
   onDeleteEdge,
 }: PropertiesPanelProps) {
-  const [label, setLabel] = useState(selectedNode?.data?.label ?? "");
+  const [label, setLabel] = useState(String(selectedNode?.data?.label ?? ""));
 
   useEffect(() => {
-    setLabel(selectedNode?.data?.label ?? "");
+    setLabel(String(selectedNode?.data?.label ?? ""));
   }, [selectedNode]);
 
   if (!selectedNode && !selectedEdge) {
@@ -51,7 +51,7 @@ export default function PropertiesPanel({
           <div className="space-y-3">
             <div>
               <div className="text-sm text-muted-foreground">Nó selecionado</div>
-              <div className="font-semibold">{selectedNode.data?.label ?? "Sem rótulo"}</div>
+              <div className="font-semibold">{String(selectedNode.data?.label ?? "Sem rótulo") }</div>
             </div>
 
             <div className="space-y-2">
@@ -109,7 +109,7 @@ export default function PropertiesPanel({
               </div>
             )}
 
-            {selectedNode?.data?.fabricante && (
+            {selectedNode?.data?.fabricante != null && (
               <div className="space-y-2">
                 <Label htmlFor="node-fabricante">Fabricante</Label>
                 <Input
@@ -120,7 +120,7 @@ export default function PropertiesPanel({
               </div>
             )}
 
-            {selectedNode?.data?.modelo && (
+            {selectedNode?.data?.modelo != null && (
               <div className="space-y-2">
                 <Label htmlFor="node-modelo">Modelo</Label>
                 <Input
@@ -172,3 +172,4 @@ export default function PropertiesPanel({
     </aside>
   );
 }
+
