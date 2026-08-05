@@ -19,6 +19,18 @@ export const Route = createFileRoute("/_authenticated/projetista-ftth/")({
 function ProjetistaFTTHPage() {
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
+
+  const selectedNode = useMemo(
+    () => nodes.find((node) => node.id === selectedNodeId) ?? null,
+    [nodes, selectedNodeId],
+  );
+
+  const selectedEdge = useMemo(
+    () => edges.find((edge) => edge.id === selectedEdgeId) ?? null,
+    [edges, selectedEdgeId],
+  );
 
   const handleAddEquipment = useCallback((equipment: EquipmentItem) => {
     setNodes((currentNodes) => [
@@ -37,6 +49,49 @@ function ProjetistaFTTHPage() {
     ]);
   }, []);
 
+  const handleSelectNode = useCallback((id: string) => {
+    setSelectedNodeId(id);
+    setSelectedEdgeId(null);
+  }, []);
+
+  const handleSelectEdge = useCallback((id: string) => {
+    setSelectedEdgeId(id);
+    setSelectedNodeId(null);
+  }, []);
+
+  const updateSelectedNodeLabel = useCallback(
+    (label: string) => {
+      if (!selectedNodeId) return;
+      setNodes((current) =>
+        current.map((node) =>
+          node.id === selectedNodeId
+            ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  label,
+                },
+              }
+            : node,
+        ),
+      );
+    },
+    [selectedNodeId],
+  );
+
+  const deleteSelectedNode = useCallback(() => {
+    if (!selectedNodeId) return;
+    setNodes((current) => current.filter((node) => node.id !== selectedNodeId));
+    setEdges((current) => current.filter((edge) => edge.source !== selectedNodeId && edge.target !== selectedNodeId));
+    setSelectedNodeId(null);
+  }, [selectedNodeId]);
+
+  const deleteSelectedEdge = useCallback(() => {
+    if (!selectedEdgeId) return;
+    setEdges((current) => current.filter((edge) => edge.id !== selectedEdgeId));
+    setSelectedEdgeId(null);
+  }, [selectedEdgeId]);
+
   return (
     <div className="flex flex-col h-[calc(100vh-70px)]">
       <Toolbar />
@@ -45,21 +100,26 @@ function ProjetistaFTTHPage() {
         <Sidebar onAddEquipment={handleAddEquipment} />
 
         <Card className="flex-1 rounded-none border-l border-r">
-
           <CardContent className="p-0 h-full">
-            <Canvas nodes={nodes} edges={edges} setNodes={setNodes} setEdges={setEdges} />
+            <Canvas
+              nodes={nodes}
+              edges={edges}
+              setNodes={setNodes}
+              setEdges={setEdges}
+              onSelectNode={handleSelectNode}
+              onSelectEdge={handleSelectEdge}
+            />
           </CardContent>
         </Card>
 
         <PropertiesPanel
-            selectedNode={selectedNode}
-            selectedEdge={selectedEdge}
-            onUpdateNodeLabel={updateSelectedNodeLabel}
-            onDeleteNode={deleteSelectedNode}
-            onDeleteEdge={deleteSelectedEdge}
-          />
+          selectedNode={selectedNode}
+          selectedEdge={selectedEdge}
+          onUpdateNodeLabel={updateSelectedNodeLabel}
+          onDeleteNode={deleteSelectedNode}
+          onDeleteEdge={deleteSelectedEdge}
+        />
       </div>
     </div>
   );
 }
-
