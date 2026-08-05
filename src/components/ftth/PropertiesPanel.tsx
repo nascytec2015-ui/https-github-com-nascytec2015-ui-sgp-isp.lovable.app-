@@ -72,7 +72,7 @@ export default function PropertiesPanel({
               Posição: <span className="font-medium text-foreground">{Math.round(selectedNode.position?.x ?? 0)}, {Math.round(selectedNode.position?.y ?? 0)}</span>
             </div>
 
-            <Button variant="destructive" onClick={onDeleteNode}>
+            <Button variant="destructive" onClick={() => onDeleteNode?.()}>
               Excluir nó
             </Button>
           </div>
@@ -90,7 +90,7 @@ export default function PropertiesPanel({
               Destino: <span className="font-medium text-foreground">{selectedEdge?.target}</span>
             </div>
 
-            <Button variant="destructive" onClick={onDeleteEdge}>
+            <Button variant="destructive" onClick={() => onDeleteEdge?.()}>
               Excluir conexão
             </Button>
           </div>
@@ -99,3 +99,4 @@ export default function PropertiesPanel({
     </aside>
   );
 }
+

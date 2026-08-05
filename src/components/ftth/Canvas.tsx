@@ -62,7 +62,7 @@ export default function Canvas({ nodes, edges, setNodes, setEdges, onSelectNode,
   }, []);
 
   const onDrop = useCallback(
-    (event: React.DragEvent) => {
+    (event: DragEvent<HTMLDivElement>) => {
       event.preventDefault();
 
       const tipo = event.dataTransfer.getData("application/reactflow");
@@ -114,6 +114,7 @@ export default function Canvas({ nodes, edges, setNodes, setEdges, onSelectNode,
     </div>
   );
 }
+
 
 
 
