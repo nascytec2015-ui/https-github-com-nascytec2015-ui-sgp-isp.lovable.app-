@@ -44,6 +44,9 @@ function ProjetistaFTTHPage() {
         },
         data: {
           label: equipment.label,
+          ...(equipment.defaultData ?? {}),
+          fabricante: equipment.manufacturer,
+          modelo: equipment.model,
         },
       },
     ]);
@@ -58,6 +61,26 @@ function ProjetistaFTTHPage() {
     setSelectedEdgeId(id);
     setSelectedNodeId(null);
   }, []);
+
+  const updateSelectedNodeData = useCallback(
+    (patch: Partial<Node["data"]>) => {
+      if (!selectedNodeId) return;
+      setNodes((current) =>
+        current.map((node) =>
+          node.id === selectedNodeId
+            ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  ...patch,
+                },
+              }
+            : node,
+        ),
+      );
+    },
+    [selectedNodeId],
+  );
 
   const updateSelectedNodeLabel = useCallback(
     (label: string) => {
@@ -125,3 +148,4 @@ function ProjetistaFTTHPage() {
     </div>
   );
 }
+
