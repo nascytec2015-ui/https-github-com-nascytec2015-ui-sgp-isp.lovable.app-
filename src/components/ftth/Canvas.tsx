@@ -1,14 +1,16 @@
-import { useCallback } from "react";
+﻿import { useCallback } from "react";
 import ReactFlow, {
   Background,
   Controls,
   MiniMap,
-  useNodesState,
-  useEdgesState,
   addEdge,
+  applyEdgeChanges,
+  applyNodeChanges,
   Connection,
   Edge,
+  EdgeChange,
   Node,
+  NodeChange,
 } from "reactflow";
 
 import "reactflow/dist/style.css";
@@ -17,10 +19,23 @@ const initialNodes: Node[] = [];
 
 const initialEdges: Edge[] = [];
 
-export default function Canvas() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+interface CanvasProps {
+  nodes: Node[];
+  edges: Edge[];
+  setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
+  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
+}
 
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+export default function Canvas({ nodes, edges, setNodes, setEdges }: CanvasProps) {
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    [setNodes],
+  );
+
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    [setEdges],
+  );
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -45,7 +60,7 @@ export default function Canvas() {
       const novoNode: Node = {
         id: crypto.randomUUID(),
 
-        type: "default",
+        type: tipo as Node["type"],
 
         position: {
           x: event.clientX - rect.left,
@@ -83,3 +98,7 @@ export default function Canvas() {
     </div>
   );
 }
+
+
+
+
