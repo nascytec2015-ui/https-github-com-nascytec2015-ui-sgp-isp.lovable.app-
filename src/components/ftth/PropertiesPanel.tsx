@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import type { Edge, Node } from "reactflow";
 
 interface PropertiesPanelProps {
-  selectedNode?: Node<{ label?: string }> | null;
+  selectedNode?: Node<Record<string, any>> | null;
   selectedEdge?: Edge | null;
   onUpdateNodeLabel?: (label: string) => void;
   onUpdateNodeData?: (patch: Partial<Node["data"]>) => void;
@@ -169,6 +169,7 @@ export default function PropertiesPanel({
     </aside>
   );
 }
+
 
 
 
