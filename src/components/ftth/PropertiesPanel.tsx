@@ -6,10 +6,10 @@ import { Label } from "@/components/ui/label";
 import type { Edge, Node } from "reactflow";
 
 interface PropertiesPanelProps {
-  selectedNode?: Node<Record<string, any>> | null;
+  selectedNode?: Node<Record<string, unknown>> | null;
   selectedEdge?: Edge | null;
   onUpdateNodeLabel?: (label: string) => void;
-  onUpdateNodeData?: (patch: Partial<Node["data"]>) => void;
+  onUpdateNodeData?: (patch: Partial<Record<string, unknown>>) => void;
   onDeleteNode?: () => void;
   onDeleteEdge?: () => void;
 }
@@ -72,7 +72,7 @@ export default function PropertiesPanel({
                   type="number"
                   min={2}
                   step={2}
-                  value={selectedNode.data?.ratio ?? 8}
+                  value={Number(selectedNode.data?.ratio ?? 8)}
                   onChange={(event) => onUpdateNodeData?.({ ratio: Number(event.target.value) })}
                 />
               </div>
@@ -85,7 +85,7 @@ export default function PropertiesPanel({
                   id="cto-capacidade"
                   type="number"
                   min={1}
-                  value={selectedNode.data?.capacidade ?? 8}
+                  value={Number(selectedNode.data?.capacidade ?? 8)}
                   onChange={(event) =>
                     onUpdateNodeData?.({ capacidade: Number(event.target.value) })
                   }
@@ -101,7 +101,7 @@ export default function PropertiesPanel({
                   type="number"
                   min={0}
                   step={0.1}
-                  value={selectedNode.data?.extra_loss_db ?? 0.1}
+                  value={Number(selectedNode.data?.extra_loss_db ?? 0.1)}
                   onChange={(event) =>
                     onUpdateNodeData?.({ extra_loss_db: Number(event.target.value) })
                   }
@@ -114,7 +114,7 @@ export default function PropertiesPanel({
                 <Label htmlFor="node-fabricante">Fabricante</Label>
                 <Input
                   id="node-fabricante"
-                  value={String(selectedNode.data.fabricante)}
+                  value={String(selectedNode.data?.fabricante ?? "")}
                   onChange={(event) => onUpdateNodeData?.({ fabricante: event.target.value })}
                 />
               </div>
@@ -125,7 +125,7 @@ export default function PropertiesPanel({
                 <Label htmlFor="node-modelo">Modelo</Label>
                 <Input
                   id="node-modelo"
-                  value={String(selectedNode.data.modelo)}
+                  value={String(selectedNode.data?.modelo ?? "")}
                   onChange={(event) => onUpdateNodeData?.({ modelo: event.target.value })}
                 />
               </div>
@@ -172,3 +172,4 @@ export default function PropertiesPanel({
     </aside>
   );
 }
+
