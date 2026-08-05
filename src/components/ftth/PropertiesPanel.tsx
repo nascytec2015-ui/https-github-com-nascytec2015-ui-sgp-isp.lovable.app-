@@ -14,7 +14,6 @@ interface PropertiesPanelProps {
   onDeleteEdge?: () => void;
 }
 
-
 export default function PropertiesPanel({
   selectedNode,
   selectedEdge,
@@ -87,7 +86,9 @@ export default function PropertiesPanel({
                   type="number"
                   min={1}
                   value={selectedNode.data?.capacidade ?? 8}
-                  onChange={(event) => onUpdateNodeData?.({ capacidade: Number(event.target.value) })}
+                  onChange={(event) =>
+                    onUpdateNodeData?.({ capacidade: Number(event.target.value) })
+                  }
                 />
               </div>
             )}
@@ -101,7 +102,9 @@ export default function PropertiesPanel({
                   min={0}
                   step={0.1}
                   value={selectedNode.data?.extra_loss_db ?? 0.1}
-                  onChange={(event) => onUpdateNodeData?.({ extra_loss_db: Number(event.target.value) })}
+                  onChange={(event) =>
+                    onUpdateNodeData?.({ extra_loss_db: Number(event.target.value) })
+                  }
                 />
               </div>
             )}
@@ -169,10 +172,3 @@ export default function PropertiesPanel({
     </aside>
   );
 }
-
-
-
-
-
-
-

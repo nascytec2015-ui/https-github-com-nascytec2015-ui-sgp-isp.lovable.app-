@@ -127,7 +127,8 @@ function ProjetistaFTTHPage() {
         <PropertiesPanel
           selectedNode={selectedNode}
           selectedEdge={selectedEdge}
-          onUpdateNodeLabel={updateSelectedNodeLabel} onUpdateNodeData={updateSelectedNodeData}
+          onUpdateNodeLabel={updateSelectedNodeLabel}
+          onUpdateNodeData={updateSelectedNodeData}
           onDeleteNode={deleteSelectedNode}
           onDeleteEdge={deleteSelectedEdge}
         />
@@ -135,6 +136,3 @@ function ProjetistaFTTHPage() {
     </div>
   );
 }
-
-
-
