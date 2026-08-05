@@ -1,5 +1,5 @@
 ﻿import { useCallback } from "react";
-import type { DragEvent } from "react";
+import type { DragEvent, Dispatch, SetStateAction } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -23,8 +23,8 @@ const initialEdges: Edge[] = [];
 interface CanvasProps {
   nodes: Node[];
   edges: Edge[];
-  setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
-  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
+  setNodes: Dispatch<SetStateAction<Node[]>>;
+  setEdges: Dispatch<SetStateAction<Edge[]>>;
 }
 
 export default function Canvas({ nodes, edges, setNodes, setEdges }: CanvasProps) {
@@ -99,6 +99,7 @@ export default function Canvas({ nodes, edges, setNodes, setEdges }: CanvasProps
     </div>
   );
 }
+
 
 
 
