@@ -1,4 +1,4 @@
-﻿import { useCallback, useState } from "react";
+﻿import { useCallback, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { type Edge, type Node } from "reactflow";
 import { Card, CardContent } from "@/components/ui/card";
@@ -45,13 +45,21 @@ function ProjetistaFTTHPage() {
         <Sidebar onAddEquipment={handleAddEquipment} />
 
         <Card className="flex-1 rounded-none border-l border-r">
+
           <CardContent className="p-0 h-full">
             <Canvas nodes={nodes} edges={edges} setNodes={setNodes} setEdges={setEdges} />
           </CardContent>
         </Card>
 
-        <PropertiesPanel />
+        <PropertiesPanel
+            selectedNode={selectedNode}
+            selectedEdge={selectedEdge}
+            onUpdateNodeLabel={updateSelectedNodeLabel}
+            onDeleteNode={deleteSelectedNode}
+            onDeleteEdge={deleteSelectedEdge}
+          />
       </div>
     </div>
   );
 }
+

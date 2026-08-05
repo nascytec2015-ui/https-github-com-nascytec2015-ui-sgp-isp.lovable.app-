@@ -1,5 +1,5 @@
 ﻿import { useCallback } from "react";
-import type { DragEvent, Dispatch, SetStateAction } from "react";
+import type { DragEvent, Dispatch, MouseEvent, SetStateAction } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -21,9 +21,26 @@ interface CanvasProps {
   edges: Edge[];
   setNodes: Dispatch<SetStateAction<Node[]>>;
   setEdges: Dispatch<SetStateAction<Edge[]>>;
+  onSelectNode?: (id: string) => void;
+  onSelectEdge?: (id: string) => void;
 }
 
-export default function Canvas({ nodes, edges, setNodes, setEdges }: CanvasProps) {
+
+export default function Canvas({ nodes, edges, setNodes, setEdges, onSelectNode, onSelectEdge }: CanvasProps) {
+  const handleNodeClick = useCallback(
+    (_event: MouseEvent, node: Node) => {
+      onSelectNode?.(node.id);
+    },
+    [onSelectNode],
+  );
+
+  const handleEdgeClick = useCallback(
+    (_event: MouseEvent, edge: Edge) => {
+      onSelectEdge?.(edge.id);
+    },
+    [onSelectEdge],
+  );
+
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
     [setNodes],
@@ -85,6 +102,8 @@ export default function Canvas({ nodes, edges, setNodes, setEdges }: CanvasProps
         onConnect={onConnect}
         onDrop={onDrop}
         onDragOver={onDragOver}
+        onNodeClick={handleNodeClick}
+        onEdgeClick={handleEdgeClick}
       >
         <Background />
 
@@ -95,3 +114,5 @@ export default function Canvas({ nodes, edges, setNodes, setEdges }: CanvasProps
     </div>
   );
 }
+
+
