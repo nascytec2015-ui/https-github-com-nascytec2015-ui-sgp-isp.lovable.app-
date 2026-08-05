@@ -9,9 +9,11 @@ interface PropertiesPanelProps {
   selectedNode?: Node<{ label?: string }> | null;
   selectedEdge?: Edge | null;
   onUpdateNodeLabel?: (label: string) => void;
+  onUpdateNodeData?: (patch: Partial<Node["data"]>) => void;
   onDeleteNode?: () => void;
   onDeleteEdge?: () => void;
 }
+
 
 export default function PropertiesPanel({
   selectedNode,
@@ -103,3 +105,4 @@ export default function PropertiesPanel({
     </aside>
   );
 }
+
