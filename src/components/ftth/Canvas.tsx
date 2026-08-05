@@ -1,4 +1,5 @@
 ﻿import { useCallback } from "react";
+import type { DragEvent } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -42,7 +43,7 @@ export default function Canvas({ nodes, edges, setNodes, setEdges }: CanvasProps
     [setEdges],
   );
 
-  const onDragOver = useCallback((event: React.DragEvent) => {
+  const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   }, []);
@@ -98,6 +99,7 @@ export default function Canvas({ nodes, edges, setNodes, setEdges }: CanvasProps
     </div>
   );
 }
+
 
 
 
