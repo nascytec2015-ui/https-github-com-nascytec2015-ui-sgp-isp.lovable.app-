@@ -389,7 +389,6 @@ class BiDirectionalSync {
           Object.values(record),
         );
       } else {
-
         const { updated_at, created_at, ...insertData } = record;
 
         // supabase typing exige um tipo concreto por tabela quando usado genericamente.
@@ -744,7 +743,6 @@ class BiDirectionalSync {
 export default BiDirectionalSync;
 
 export type { SyncConfig, SyncRecord };
-  function eq(arg0: string, id: string) {
-    throw new Error("Function not implemented.");
-  }
-
+function eq(arg0: string, id: string) {
+  throw new Error("Function not implemented.");
+}
