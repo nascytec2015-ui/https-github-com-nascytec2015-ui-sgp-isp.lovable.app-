@@ -389,9 +389,12 @@ class BiDirectionalSync {
           Object.values(record),
         );
       } else {
+
         const { updated_at, created_at, ...insertData } = record;
 
-        const { error } = await this.supabase.from(tableName).insert([insertData]);
+        // supabase typing exige um tipo concreto por tabela quando usado genericamente.
+        // Fazer um cast pontual para `any` aqui é a forma prática de lidar com tabelas dinâmicas.
+        const { error } = await (this.supabase as any).from(tableName).insert([insertData as any]);
 
         if (error) {
           throw error;
@@ -446,9 +449,9 @@ class BiDirectionalSync {
       if (direction === "supabase-to-local") {
         const { ...updateData } = record;
 
-        const { error } = await this.supabase
+        const { error } = await (this.supabase as any)
           .from(tableName)
-          .update(record);
+          .update(record as any)
           .eq("id", record.id);
 
         if (error) {
