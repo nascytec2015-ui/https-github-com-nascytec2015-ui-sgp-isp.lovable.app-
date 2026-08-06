@@ -1,25 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type ToastVariant = "default" | "destructive";
 
 type Toast = {
   id: string;
-
   title?: string;
-
   description?: string;
-
   variant?: ToastVariant;
 };
 
-const listeners: Array<(toast: Toast) => void> = [];
+type ToastListener = (toast: Toast) => void;
+
+const listeners: ToastListener[] = [];
 
 export function toast(data: Omit<Toast, "id">) {
   const id = crypto.randomUUID();
 
-  const newToast = {
+  const newToast: Toast = {
     id,
-
     ...data,
   };
 
@@ -29,9 +27,20 @@ export function toast(data: Omit<Toast, "id">) {
 export function useToast() {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  if (!listeners.includes(setToasts as any)) {
-    listeners.push(setToasts as any);
-  }
+  useEffect(() => {
+    const listener: ToastListener = (toast) => {
+      setToasts((prev) => [...prev, toast]);
+    };
+
+    listeners.push(listener);
+
+    return () => {
+      const index = listeners.indexOf(listener);
+      if (index !== -1) {
+        listeners.splice(index, 1);
+      }
+    };
+  }, []);
 
   function dismiss(id: string) {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
@@ -39,9 +48,7 @@ export function useToast() {
 
   return {
     toast,
-
     toasts,
-
     dismiss,
   };
 }

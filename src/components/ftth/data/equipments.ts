@@ -13,7 +13,7 @@ export interface EquipmentItem {
 
   model?: string;
 
-  defaultData?: Record<string, any>;
+  defaultData?: Record<string, unknown>;
 }
 
 export const EQUIPMENTS: EquipmentItem[] = [

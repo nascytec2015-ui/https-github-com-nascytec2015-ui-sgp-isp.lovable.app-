@@ -87,7 +87,7 @@ export default function FTTHFlow({
   }));
 
   const onConnect = useCallback(
-    (params: any) => {
+    (params: Connection) => {
       const source = nodes.find((n) => n.id === params.source);
 
       const target = nodes.find((n) => n.id === params.target);

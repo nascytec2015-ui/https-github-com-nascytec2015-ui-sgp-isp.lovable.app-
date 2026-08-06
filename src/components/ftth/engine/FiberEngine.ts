@@ -31,7 +31,7 @@ export class FiberEngine {
 
           break;
 
-        case "splitter":
+        case "splitter":{
           const portas = node.ratio ?? 8;
 
           result[node.id] = {
@@ -41,6 +41,7 @@ export class FiberEngine {
           };
 
           break;
+        }
 
         case "emenda":
           result[node.id] = {
@@ -51,7 +52,7 @@ export class FiberEngine {
 
           break;
 
-        case "cto":
+        case "cto":{
           const usadas = diagram.edges.filter((e) => e.from === node.id).length;
 
           const total = node.capacidade ?? 16;
@@ -63,6 +64,7 @@ export class FiberEngine {
           };
 
           break;
+        }
 
         case "cliente":
           result[node.id] = {

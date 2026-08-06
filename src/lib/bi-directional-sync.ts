@@ -11,7 +11,7 @@ interface SyncRecord {
 
   created_at?: string | null;
 
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /*** Configuração do sincronizador ***/
@@ -391,7 +391,7 @@ class BiDirectionalSync {
       } else {
         const { updated_at, created_at, ...insertData } = record;
 
-        const { error } = await (this.supabase as any).from(tableName).insert([insertData]);
+        const { error } = await this.supabase.from(tableName).insert([insertData]);
 
         if (error) {
           throw error;
@@ -446,12 +446,9 @@ class BiDirectionalSync {
       if (direction === "supabase-to-local") {
         const { ...updateData } = record;
 
-        const { error } = await (this.supabase as any)
-
+        const { error } = await this.supabase
           .from(tableName)
-
-          .update(record)
-
+          .update(record);
           .eq("id", record.id);
 
         if (error) {
@@ -675,7 +672,10 @@ class BiDirectionalSync {
       health.supabase = !!data;
 
       if (data?.[0]) {
-        health.lastSync = new Date((data[0] as any).ultima_sincronizacao);
+        const row = data[0] as { ultima_sincronizacao?: string | null };
+        if (row.ultima_sincronizacao) {
+          health.lastSync = new Date(row.ultima_sincronizacao);
+        }
       }
     } catch {
       console.error("[SYNC] Supabase offline");
@@ -741,3 +741,7 @@ class BiDirectionalSync {
 export default BiDirectionalSync;
 
 export type { SyncConfig, SyncRecord };
+  function eq(arg0: string, id: string) {
+    throw new Error("Function not implemented.");
+  }
+
