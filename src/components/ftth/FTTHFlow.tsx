@@ -103,9 +103,9 @@ export default function FTTHFlow({
       }
 
       const novaEdge: FEdge = {
-        id: `${params.source}-${params.target}`,
-        from: params.source,
-        to: params.target,
+        id: `${source.id}-${target.id}`,
+        from: source.id,
+        to: target.id,
 
         length_m: 0,
         connectors: 0,
