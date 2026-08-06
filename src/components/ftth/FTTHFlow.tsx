@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 
-import ReactFlow, { Background, Controls, MiniMap, Node, Edge } from "reactflow";
+import ReactFlow, { Background, Controls, MiniMap, Node, Edge, Connection } from "reactflow";
 
 import "reactflow/dist/style.css";
 

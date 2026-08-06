@@ -1,0 +1,97 @@
+--- a/src/components/ftth/FTTHFlow.tsx
++++ b/src/components/ftth/FTTHFlow.tsx
+@@
+-import ReactFlow, { Background, Controls, MiniMap, Node, Edge } from "reactflow";
++import ReactFlow, { Background, Controls, MiniMap, Node, Edge, Connection } from "reactflow";
+@@
+-  const onConnect = useCallback(
+-    (params: any) => {
++  const onConnect = useCallback(
++    (params: Connection) => {
+ 
+       const source = nodes.find((n) => n.id === params.source);
+ 
+       const target = nodes.find((n) => n.id === params.target);
+--- a/src/components/ftth/data/equipments.ts
++++ b/src/components/ftth/data/equipments.ts
+@@
+-  defaultData?: Record<string, any>;
++  defaultData?: Record<string, unknown>;
+--- a/src/components/ftth/engine/FiberEngine.ts
++++ b/src/components/ftth/engine/FiberEngine.ts
+@@
+         case "splitter": {
+-          const portas = node.ratio ?? 8;
++          const portas = node.ratio ?? 8;
+ 
+           result[node.id] = {
+             entrada: 1,
+             saida: portas,
+             livres: 0,
+           };
+ 
+           break;
++        }
+@@
+         case "cto": {
+-          const usadas = diagram.edges.filter((e) => e.from === node.id).length;
+-
+-          const total = node.capacidade ?? 16;
++          const usadas = diagram.edges.filter((e) => e.from === node.id).length;
++
++          const total = node.capacidade ?? 16;
+ 
+           result[node.id] = {
+             entrada: 1,
+             saida: usadas,
+             livres: total - usadas,
+           };
+ 
+           break;
++        }
+--- a/src/hooks/use-toast.ts
++++ b/src/hooks/use-toast.ts
+@@
+-type ToastVariant = "default" | "destructive";
++type ToastVariant = "default" | "destructive";
++
++type ToastListener = (toast: Toast) => void;
+@@
+-const listeners: Array<(toast: Toast) => void> = [];
++const listeners: ToastListener[] = [];
+@@
+-  if (!listeners.includes(setToasts as any)) {
+-    listeners.push(setToasts as any);
++  const listener = setToasts as ToastListener;
++  if (!listeners.includes(listener)) {
++    listeners.push(listener);
+   }
+--- a/src/lib/bi-directional-sync.ts
++++ b/src/lib/bi-directional-sync.ts
+@@
+-  [key: string]: any;
++  [key: string]: unknown;
+ }
+@@
+-        const { error } = await (this.supabase as any).from(tableName).insert([insertData]);
++        const { error } = await this.supabase.from(tableName).insert([insertData]);
+@@
+-        const { error } = await (this.supabase as any)
++        const { error } = await this.supabase
+           .from(tableName)
+ 
+           .update(record)
+@@
+-      if (data?.[0]) {
+-        health.lastSync = new Date((data[0] as any).ultima_sincronizacao);
++      if (data?.[0]) {
++        const row = data[0] as { ultima_sincronizacao?: string | null };
++        if (row.ultima_sincronizacao) {
++          health.lastSync = new Date(row.ultima_sincronizacao);
++        }
+       }
+--- a/src/lib/optical/OpticalRecognizer.ts
++++ b/src/lib/optical/OpticalRecognizer.ts
+@@
+-  const match = t.match(/1[:x\/-]?(2|4|8|16|32)/);
++  const match = t.match(/1[:x/-]?(2|4|8|16|32)/);
