@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
+import { createPPPForClient } from "@/server/mikrotik.functions";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -55,6 +56,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/clientes")({
   head: () => ({ meta: [{ title: "Clientes — ISP Manager" }] }),
@@ -191,10 +193,52 @@ function ClientesPage() {
           .from("clientes")
           .update(payload as never)
           .eq("id", editing.id);
+
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("clientes").insert(payload as never);
+        const { data: clienteCriado, error } = await supabase
+          .from("clientes")
+          .insert(payload as never)
+          .select("id, ppoe_user, ppoe_pass, plano_id")
+          .single();
+
         if (error) throw error;
+
+        const username = parsed.ppoe_user?.trim();
+        const password = parsed.ppoe_pass?.trim();
+
+        if (username && password && parsed.plano_id) {
+          const plano = planos.find(
+            (item) => item.id === parsed.plano_id,
+          );
+
+          if (!plano) {
+            throw new Error(
+              "Plano selecionado não foi encontrado.",
+            );
+          }
+
+          try {
+            await createPPPForClient({
+              data: {
+                username,
+                password,
+                profile: plano.nome,
+              },
+            });
+          } catch (error) {
+            // O cliente permanece cadastrado no SGP,
+            // mas avisamos que o PPPoE não foi criado.
+            const mensagem =
+              error instanceof Error
+                ? error.message
+                : "Erro desconhecido ao criar PPPoE.";
+
+            throw new Error(
+              `Cliente cadastrado, porém o PPPoE não foi criado no MikroTik: ${mensagem}`,
+            );
+          }
+        }
       }
     },
     onSuccess: () => {
