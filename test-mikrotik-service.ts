@@ -1,4 +1,7 @@
+import { loadEnvFile } from "node:process";
 import { MikroTikService } from "./src/services/mikrotik";
+
+loadEnvFile(".env");
 
 async function main() {
     const mikrotik = new MikroTikService();
