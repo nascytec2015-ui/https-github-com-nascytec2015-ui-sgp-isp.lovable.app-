@@ -6,101 +6,228 @@ datasource db {
   provider = "postgresql"
 }
 
-model Tecnico {
-  id         String  @id @default(uuid())
-  nome       String
-  telefone   String?
-  email      String?
-  cargo      String?
-  equipe     String?
-  foto       String?
-  assinatura String?
-  ativo      Boolean @default(true)
+model clientes {
+  id                String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome              String
+  cpf_cnpj          String?
+  email             String?
+  telefone          String?
+  endereco          String?
+  numero            String?
+  bairro            String?
+  cidade            String?
+  estado            String?
+  cep               String?
+  plano_id          String?          @db.Uuid
+  ppoe_user         String?
+  ppoe_pass         String?
+  ip_fixo           String?
+  observacoes       String?
+  status            cliente_status   @default(ativo)
+  data_ativacao     DateTime?        @default(dbgenerated("CURRENT_DATE")) @db.Date
+  data_cancelamento DateTime?        @db.Date
+  created_by        String?          @db.Uuid
+  created_at        DateTime         @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime         @default(now()) @db.Timestamptz(6)
+  users             users?           @relation(fields: [created_by], references: [id], onUpdate: NoAction)
+  planos            planos?          @relation(fields: [plano_id], references: [id], onUpdate: NoAction)
+  ordens_servico    ordens_servico[]
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  ordens OrdemServico[]
+  @@index([created_by], map: "idx_clientes_created_by")
+  @@index([plano_id], map: "idx_clientes_plano")
+  @@index([status], map: "idx_clientes_status")
 }
 
-model OrdemServico {
-  id String @id @default(uuid())
+model ordens_servico {
+  id                                     String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  numero                                 Int             @unique @default(autoincrement())
+  cliente_id                             String          @db.Uuid
+  tipo                                   os_tipo
+  status                                 os_status       @default(aberta)
+  descricao                              String
+  tecnico_id                             String?         @db.Uuid
+  projeto_ftth_id                        String?         @db.Uuid
+  cto_ref                                String?
+  porta_cto                              Int?
+  endereco_atendimento                   String?
+  data_agendada                          DateTime?       @db.Timestamptz(6)
+  data_inicio                            DateTime?       @db.Timestamptz(6)
+  data_conclusao                         DateTime?       @db.Timestamptz(6)
+  valor                                  Decimal?        @default(0) @db.Decimal(10, 2)
+  forma_pagamento                        String?
+  assinatura_cliente                     String?
+  observacoes_cliente                    String?
+  observacoes_internas                   String?
+  created_by                             String?         @db.Uuid
+  created_at                             DateTime        @default(now()) @db.Timestamptz(6)
+  updated_at                             DateTime        @default(now()) @db.Timestamptz(6)
+  clientes                               clientes        @relation(fields: [cliente_id], references: [id], onUpdate: NoAction)
+  users_ordens_servico_created_byTousers users?          @relation("ordens_servico_created_byTousers", fields: [created_by], references: [id], onUpdate: NoAction)
+  projetos_ftth                          projetos_ftth?  @relation(fields: [projeto_ftth_id], references: [id], onUpdate: NoAction)
+  users_ordens_servico_tecnico_idTousers users?          @relation("ordens_servico_tecnico_idTousers", fields: [tecnico_id], references: [id], onUpdate: NoAction)
+  os_evidencias                          os_evidencias[]
+  os_materiais                           os_materiais[]
 
-  clienteId String
-  tecnicoId String?
-
-  status     String
-  prioridade String?
-  descricao  String?
-
-  abertura   DateTime @default(now())
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  cliente Cliente  @relation(fields: [clienteId], references: [id])
-  tecnico Tecnico? @relation(fields: [tecnicoId], references: [id])
-
-  materiais  OSMaterial[]
-  evidencias OSEvidencia[]
-
-  @@index([clienteId])
-  @@index([tecnicoId])
+  @@index([cliente_id], map: "idx_os_cliente")
+  @@index([projeto_ftth_id], map: "idx_os_projeto_ftth")
+  @@index([status], map: "idx_os_status")
+  @@index([tecnico_id], map: "idx_os_tecnico")
 }
 
-model OSEvidencia {
-  id          String   @id @default(uuid())
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model os_evidencias {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  os_id          String         @db.Uuid
+  tipo           String
+  url            String
+  descricao      String?
+  tamanho_bytes  Int?
+  mime_type      String?
+  criado_por     String?        @db.Uuid
+  created_at     DateTime       @default(now()) @db.Timestamptz(6)
+  users          users?         @relation(fields: [criado_por], references: [id], onUpdate: NoAction)
+  ordens_servico ordens_servico @relation(fields: [os_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  osId        String
-
-  tipo        String   // foto | video
-
-  categoria   String?  // antes | depois | cto | onu | velocidade
-
-  arquivo     String
-
-  descricao   String?
-
-  latitude    Float?
-
-  longitude   Float?
-
-  dataHora    DateTime @default(now())
-
-  dispositivo String?
-
-  tecnicoId   String?
-
-  ordem OrdemServico @relation(fields: [osId], references: [id], onDelete: Cascade)
+  @@index([criado_por], map: "idx_os_evidencias_criado_por")
+  @@index([os_id], map: "idx_os_evidencias_os")
+  @@index([tipo], map: "idx_os_evidencias_tipo")
 }
 
-enum OsTipo {
-  INSTALACAO
-  MANUTENCAO
-  SUPORTE
-  VISITA_TECNICA
-  MUDANCA_ENDERECO
-  CANCELAMENTO
+model os_materiais {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  os_id          String         @db.Uuid
+  descricao      String
+  quantidade     Decimal        @default(1) @db.Decimal(10, 2)
+  unidade        String?        @default("un")
+  valor_unitario Decimal?       @default(0) @db.Decimal(10, 2)
+  created_at     DateTime       @default(now()) @db.Timestamptz(6)
+  ordens_servico ordens_servico @relation(fields: [os_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([os_id], map: "idx_os_materiais_os")
 }
 
-model Cliente {
-  id        String   @id @default(uuid())
-  nome      String
-  cpfCnpj   String?
-  telefone  String?
-  email     String?
-  endereco  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  ordensServico OrdemServico[]
+model planos {
+  id              String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome            String
+  velocidade_down Int        @default(0)
+  velocidade_up   Int        @default(0)
+  valor           Decimal    @default(0) @db.Decimal(10, 2)
+  ativo           Boolean    @default(true)
+  created_at      DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime   @default(now()) @db.Timestamptz(6)
+  clientes        clientes[]
 }
 
-model OSMaterial {
-  id             String @id @default(uuid())
-  ordemServicoId String
+model profiles {
+  id         String   @id @db.Uuid
+  full_name  String?
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+  users      users    @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model projetos_ftth {
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nome           String
-  quantidade     Int    @default(1)
+  descricao      String?
+  olt_tx_dbm     Decimal          @default(3) @db.Decimal
+  data           Json             @default("{\"edges\": [], \"nodes\": []}")
+  created_by     String?          @db.Uuid
+  created_at     DateTime         @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime         @default(now()) @db.Timestamptz(6)
+  ordens_servico ordens_servico[]
+  users          users?           @relation(fields: [created_by], references: [id], onUpdate: NoAction)
 
-  ordemServico OrdemServico @relation(fields: [ordemServicoId], references: [id], onDelete: Cascade)
+  @@index([created_by], map: "idx_projetos_ftth_created_by")
 }
 
+model sync_conflicts {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tabela        String
+  registro_id   String    @db.Uuid
+  supabase_data Json?
+  local_data    Json?
+  resolucao     String?
+  resolvido_em  DateTime? @db.Timestamptz(6)
+  created_at    DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@index([resolvido_em], map: "idx_sync_conflicts_resolvido")
+  @@index([tabela], map: "idx_sync_conflicts_tabela")
+}
+
+model sync_logs {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tabela       String
+  operacao     String
+  pk           String?  @db.Uuid
+  dados        Json?
+  origem       String
+  timestamp    DateTime @default(now()) @db.Timestamptz(6)
+  sincronizado Boolean? @default(false)
+
+  @@index([sincronizado], map: "idx_sync_logs_sincronizado")
+  @@index([tabela], map: "idx_sync_logs_tabela")
+  @@index([timestamp], map: "idx_sync_logs_timestamp")
+}
+
+model sync_versions {
+  tabela               String    @id
+  ultima_sincronizacao DateTime? @db.Timestamptz(6)
+  versao_local         Int?      @default(0)
+  versao_supabase      Int?      @default(0)
+}
+
+model user_roles {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    String   @db.Uuid
+  role       app_role
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  users      users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, role])
+  @@index([user_id], map: "idx_user_roles_user_id")
+}
+
+model users {
+  id                                              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email                                           String           @unique
+  nome                                            String?
+  ativo                                           Boolean          @default(true)
+  created_at                                      DateTime         @default(now()) @db.Timestamptz(6)
+  updated_at                                      DateTime         @default(now()) @db.Timestamptz(6)
+  clientes                                        clientes[]
+  ordens_servico_ordens_servico_created_byTousers ordens_servico[] @relation("ordens_servico_created_byTousers")
+  ordens_servico_ordens_servico_tecnico_idTousers ordens_servico[] @relation("ordens_servico_tecnico_idTousers")
+  os_evidencias                                   os_evidencias[]
+  profiles                                        profiles?
+  projetos_ftth                                   projetos_ftth[]
+  user_roles                                      user_roles[]
+}
+
+enum app_role {
+  admin
+  tecnico
+  comercial
+  atendente
+}
+
+enum cliente_status {
+  ativo
+  inativo
+  bloqueado
+}
+
+enum os_status {
+  aberta
+  em_atendimento
+  concluida
+  cancelada
+}
+
+enum os_tipo {
+  instalacao
+  reparo
+  mudanca_endereco
+  desativacao
+  outros
+}
