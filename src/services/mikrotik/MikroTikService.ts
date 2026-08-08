@@ -9,6 +9,14 @@ export interface MikroTikConfig {
     tls: boolean;
 }
 
+export interface PPPUser {
+    id: string;
+    username: string;
+    service: string;
+    profile: string;
+    disabled: boolean;
+}
+
 export class MikroTikService {
     private api: MikrotikAPI | null = null;
     private readonly config: MikroTikConfig;
@@ -149,10 +157,29 @@ export class MikroTikService {
         return api.write("/ppp/active/print");
     }
 
-    async getPPPSecrets(): Promise<unknown> {
+    async getPPPUsers(): Promise<PPPUser[]> {
         const api = await this.getApi();
 
-        return api.write("/ppp/secret/print");
+        const secrets = await api.write("/ppp/secret/print");
+
+        return secrets.map((secret) => ({
+            id: secret[".id"] ?? "",
+            username: secret["name"] ?? "",
+            service: secret["service"] ?? "",
+            profile: secret["profile"] ?? "",
+            disabled: secret["disabled"] === "true",
+        }));
+    }
+
+    async findPPPUser(username: string): Promise<PPPUser | null> {
+        const users = await this.getPPPUsers();
+
+        return (
+            users.find(
+                (user) =>
+                    user.username.toLowerCase() === username.toLowerCase()
+            ) ?? null
+        );
     }
 
     async command(
