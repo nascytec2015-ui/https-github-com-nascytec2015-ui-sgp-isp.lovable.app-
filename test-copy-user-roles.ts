@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
-import pg from "pg";
+import * as pg from "pg";
 
 const { Pool } = pg;
 
