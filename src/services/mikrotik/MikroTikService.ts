@@ -143,6 +143,18 @@ export class MikroTikService {
         return api.getInterfaces();
     }
 
+    async getActivePPPSessions(): Promise<unknown> {
+        const api = await this.getApi();
+
+        return api.write("/ppp/active/print");
+    }
+
+    async getPPPSecrets(): Promise<unknown> {
+        const api = await this.getApi();
+
+        return api.write("/ppp/secret/print");
+    }
+
     async command(
         ...commands: string[]
     ): Promise<Record<string, string>[]> {
