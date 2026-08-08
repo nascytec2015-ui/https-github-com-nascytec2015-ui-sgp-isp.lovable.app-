@@ -231,6 +231,154 @@ export class MikroTikService {
         return createdUser;
     }
 
+    async updatePPPUser(
+        username: string,
+        data: {
+            password?: string;
+            profile?: string;
+        }
+    ): Promise<PPPUser> {
+        const api = await this.getApi();
+
+        const user = await this.findPPPUser(username);
+
+        if (!user) {
+            throw new Error(
+                `O usuário PPP "${username}" não foi encontrado no MikroTik.`
+            );
+        }
+
+        const commands: string[] = [
+            "/ppp/secret/set",
+            `=.id=${user.id}`,
+        ];
+
+        if (data.password !== undefined) {
+            if (!data.password) {
+                throw new Error("A nova senha PPP não pode ser vazia.");
+            }
+
+            commands.push(`=password=${data.password}`);
+        }
+
+        if (data.profile !== undefined) {
+            const profile = data.profile.trim();
+
+            if (!profile) {
+                throw new Error("O perfil PPP não pode ser vazio.");
+            }
+
+            commands.push(`=profile=${profile}`);
+        }
+
+        if (commands.length === 2) {
+            throw new Error(
+                "Informe password ou profile para alterar o usuário PPP."
+            );
+        }
+
+        await api.write(commands);
+
+        const updatedUser = await this.findPPPUser(username);
+
+        if (!updatedUser) {
+            throw new Error(
+                `Não foi possível confirmar a atualização do usuário "${username}".`
+            );
+        }
+
+        return updatedUser;
+    }
+
+    async disablePPPUser(username: string): Promise<PPPUser> {
+        const api = await this.getApi();
+
+        const user = await this.findPPPUser(username);
+
+        if (!user) {
+            throw new Error(
+                `O usuário PPP "${username}" não foi encontrado no MikroTik.`
+            );
+        }
+
+        if (user.disabled) {
+            return user;
+        }
+
+        await api.write(
+            "/ppp/secret/set",
+            `=.id=${user.id}`,
+            "=disabled=yes"
+        );
+
+        const updatedUser = await this.findPPPUser(username);
+
+        if (!updatedUser) {
+            throw new Error(
+                `Não foi possível confirmar o bloqueio de "${username}".`
+            );
+        }
+
+        return updatedUser;
+    }
+
+    async enablePPPUser(username: string): Promise<PPPUser> {
+        const api = await this.getApi();
+
+        const user = await this.findPPPUser(username);
+
+        if (!user) {
+            throw new Error(
+                `O usuário PPP "${username}" não foi encontrado no MikroTik.`
+            );
+        }
+
+        if (!user.disabled) {
+            return user;
+        }
+
+        await api.write(
+            "/ppp/secret/set",
+            `=.id=${user.id}`,
+            "=disabled=no"
+        );
+
+        const updatedUser = await this.findPPPUser(username);
+
+        if (!updatedUser) {
+            throw new Error(
+                `Não foi possível confirmar o desbloqueio de "${username}".`
+            );
+        }
+
+        return updatedUser;
+    }
+
+    async deletePPPUser(username: string): Promise<void> {
+        const api = await this.getApi();
+
+        const user = await this.findPPPUser(username);
+
+        if (!user) {
+            throw new Error(
+                `O usuário PPP "${username}" não foi encontrado no MikroTik.`
+            );
+        }
+
+        await api.write(
+            "/ppp/secret/remove",
+            `=.id=${user.id}`
+        );
+
+        const deletedUser = await this.findPPPUser(username);
+
+        if (deletedUser) {
+            throw new Error(
+                `Não foi possível confirmar a remoção de "${username}".`
+            );
+        }
+    }
+
     async command(
         ...commands: string[]
     ): Promise<Record<string, string>[]> {
