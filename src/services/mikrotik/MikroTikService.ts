@@ -186,18 +186,13 @@ export class MikroTikService {
         username: string,
         password: string,
         profile: string
-    ): Promise<string> {
+    ): Promise<PPPUser> {
         const api = await this.getApi();
 
-        const existingUser = await this.findPPPUser(username);
+        const normalizedUsername = username.trim();
+        const normalizedProfile = profile.trim();
 
-        if (existingUser) {
-            throw new Error(
-                `O usuário PPP "${username}" já existe no MikroTik.`
-            );
-        }
-
-        if (!username.trim()) {
+        if (!normalizedUsername) {
             throw new Error("O usuário PPP é obrigatório.");
         }
 
@@ -205,21 +200,35 @@ export class MikroTikService {
             throw new Error("A senha PPP é obrigatória.");
         }
 
-        if (!profile.trim()) {
+        if (!normalizedProfile) {
             throw new Error("O perfil PPP é obrigatório.");
         }
 
-        const result = await api.write(
+        const existingUser = await this.findPPPUser(normalizedUsername);
+
+        if (existingUser) {
+            throw new Error(
+                `O usuário PPP "${normalizedUsername}" já existe no MikroTik.`
+            );
+        }
+
+        await api.write(
             "/ppp/secret/add",
-            `=name=${username}`,
+            `=name=${normalizedUsername}`,
             `=password=${password}`,
             "=service=pppoe",
-            `=profile=${profile}`
+            `=profile=${normalizedProfile}`
         );
 
-        const createdId = result?.[0]?.ret ?? result?.[0]?.[".id"] ?? "";
+        const createdUser = await this.findPPPUser(normalizedUsername);
 
-        return createdId;
+        if (!createdUser) {
+            throw new Error(
+                `O usuário PPP "${normalizedUsername}" não foi encontrado após a criação.`
+            );
+        }
+
+        return createdUser;
     }
 
     async command(
