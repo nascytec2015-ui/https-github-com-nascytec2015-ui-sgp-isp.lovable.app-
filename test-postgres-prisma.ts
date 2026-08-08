@@ -20,7 +20,8 @@ async function main() {
 
     console.log("✅ Prisma conectado ao PostgreSQL!");
 
-    const result = await prisma.$queryRaw<
+    // Teste de conexão
+    const database = await prisma.$queryRaw<
         {
             current_database: string;
             current_schema: string;
@@ -29,22 +30,33 @@ async function main() {
     SELECT current_database(), current_schema();
   `;
 
-    console.log("📊 Banco:", result[0]);
+    console.log("📊 Banco:", database[0]);
 
-    const tables = await prisma.$queryRaw<
-        { tablename: string }[]
-    >`
-    SELECT tablename
-    FROM pg_tables
-    WHERE schemaname = 'public'
-    ORDER BY tablename;
-  `;
+    // ==========================================
+    // TESTE REAL VIA PRISMA
+    // ==========================================
 
-    console.log("\n📋 Tabelas encontradas:");
+    const clientes = await prisma.clientes.findMany({
+        take: 5,
+    });
 
-    for (const table of tables) {
-        console.log(`   • ${table.tablename}`);
-    }
+    console.log(`\n👥 Clientes encontrados: ${clientes.length}`);
+
+    clientes.forEach((cliente, index) => {
+        console.log(`\n--- Cliente ${index + 1} ---`);
+        console.log(cliente);
+    });
+
+    const planos = await prisma.planos.findMany({
+        take: 5,
+    });
+
+    console.log(`\n📦 Planos encontrados: ${planos.length}`);
+
+    planos.forEach((plano, index) => {
+        console.log(`\n--- Plano ${index + 1} ---`);
+        console.log(plano);
+    });
 }
 
 main()
