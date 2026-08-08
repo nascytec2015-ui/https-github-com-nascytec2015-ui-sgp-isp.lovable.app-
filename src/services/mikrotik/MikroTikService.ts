@@ -182,6 +182,46 @@ export class MikroTikService {
         );
     }
 
+    async createPPPUser(
+        username: string,
+        password: string,
+        profile: string
+    ): Promise<string> {
+        const api = await this.getApi();
+
+        const existingUser = await this.findPPPUser(username);
+
+        if (existingUser) {
+            throw new Error(
+                `O usuário PPP "${username}" já existe no MikroTik.`
+            );
+        }
+
+        if (!username.trim()) {
+            throw new Error("O usuário PPP é obrigatório.");
+        }
+
+        if (!password) {
+            throw new Error("A senha PPP é obrigatória.");
+        }
+
+        if (!profile.trim()) {
+            throw new Error("O perfil PPP é obrigatório.");
+        }
+
+        const result = await api.write(
+            "/ppp/secret/add",
+            `=name=${username}`,
+            `=password=${password}`,
+            "=service=pppoe",
+            `=profile=${profile}`
+        );
+
+        const createdId = result?.[0]?.ret ?? result?.[0]?.[".id"] ?? "";
+
+        return createdId;
+    }
+
     async command(
         ...commands: string[]
     ): Promise<Record<string, string>[]> {
