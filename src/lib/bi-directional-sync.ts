@@ -218,16 +218,19 @@ class BiDirectionalSync {
   }
 
   /**
-   * Normaliza registros antes da comparação.
-   *
-   * Objetivo:
-   * - Considerar datas equivalentes:
-   *   2026-07-13T00:49:44.289Z
-   *   2026-07-13T00:49:44.289+00:00
-   *
-   * - Normalizar objetos independentemente da ordem das propriedades.
-   * - Não alterar os dados reais armazenados no banco.
-   */
+ * Normaliza registros antes da comparação.
+ *
+ * Objetivo:
+ * - Normalizar Date do PostgreSQL.
+ * - Considerar timestamps equivalentes:
+ *   2026-07-13T00:49:44.289Z
+ *   2026-07-13T00:49:44.289+00:00
+ *
+ * - Normalizar objetos independentemente
+ *   da ordem das propriedades.
+ *
+ * - Não alterar os dados reais armazenados no banco.
+ */
   private normalizeForComparison(
     record: SyncRecord,
   ): string {
@@ -240,7 +243,22 @@ class BiDirectionalSync {
       }
 
       /**
-       * Datas/timestamps.
+       * PostgreSQL retorna campos timestamp
+       * como objetos Date.
+       *
+       * IMPORTANTE:
+       * precisa vir ANTES do typeof === "object".
+       */
+      if (value instanceof Date) {
+        if (!Number.isNaN(value.getTime())) {
+          return value.toISOString();
+        }
+
+        return value;
+      }
+
+      /**
+       * Strings que representam datas.
        */
       if (
         typeof value === "string" &&
@@ -248,9 +266,8 @@ class BiDirectionalSync {
         (
           key === "created_at" ||
           key === "updated_at" ||
-          key === "deleted_at" ||
-          key === "ultima_execucao" ||
-          key.endsWith("_at")
+          key === "data_ativacao" ||
+          key === "data_cancelamento"
         )
       ) {
         const date = new Date(value);
@@ -261,7 +278,7 @@ class BiDirectionalSync {
       }
 
       /**
-       * Arrays
+       * Arrays.
        */
       if (Array.isArray(value)) {
         return value.map((item) =>
@@ -270,13 +287,19 @@ class BiDirectionalSync {
       }
 
       /**
-       * Objetos
+       * Objetos.
+       *
+       * As propriedades são ordenadas para que
+       * a ordem não provoque falso conflito.
        */
       if (typeof value === "object") {
         return Object.keys(value)
           .sort()
           .reduce(
-            (result, objectKey) => {
+            (
+              result,
+              objectKey,
+            ) => {
               result[objectKey] =
                 normalizeValue(
                   value[objectKey],
@@ -296,7 +319,7 @@ class BiDirectionalSync {
       normalizeValue(record),
     );
   }
-
+  
   /**
    * Sincronização origem → destino
    *
