@@ -373,38 +373,48 @@ class BiDirectionalSync {
        * são consideradas o mesmo timestamp.
        ***/
       if (diff < 1000) {
+
+        console.log(
+          `[SYNC-COMPARE] ${tableName}:${sourceRecord.id}`,
+          {
+            source: this.normalizeForComparison(sourceRecord),
+            destination: this.normalizeForComparison(destRecord),
+            iguais:
+              this.normalizeForComparison(sourceRecord) ===
+              this.normalizeForComparison(destRecord),
+          },
+        );
+
         const sourceJson =
-          this.normalizeForComparison(
-            sourceRecord,
-          );
+          this.normalizeForComparison(sourceRecord);
 
         const destinationJson =
-          this.normalizeForComparison(
-            destRecord,
-          );
+          this.normalizeForComparison(destRecord);
 
         /**
-         * Mesmo conteúdo após normalização:
-         * não existe conflito.
+         * Mesmo timestamp e mesmo conteúdo:
+         * nenhuma sincronização necessária.
          */
         if (sourceJson === destinationJson) {
           continue;
         }
 
-        /***
-         * Mesmo timestamp, dados diferentes:
-         * conflito.
+        /**
+         * Se os dados realmente forem diferentes,
+         * só precisamos resolver o conflito uma vez.
          *
-         * REGRA DEFINIDA:
-         * PostgreSQL local sempre vence.
-         ***/
-        await this.resolveConflict(
-          tableName,
-          sourceRecord.id,
-          sourceRecord,
-          destRecord,
-          direction,
-        );
+         * A direção SUPABASE → LOCAL registra/resol­ve
+         * o conflito. A segunda direção não deve repetir.
+         */
+        if (direction === "supabase-to-local") {
+          await this.resolveConflict(
+            tableName,
+            sourceRecord.id,
+            sourceRecord,
+            destRecord,
+            direction,
+          );
+        }
 
         continue;
       }
