@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createPPPForClient } from "@/server/mikrotik.functions";
+import { createPPPForClient } from "@/lib/mikrotik.client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
