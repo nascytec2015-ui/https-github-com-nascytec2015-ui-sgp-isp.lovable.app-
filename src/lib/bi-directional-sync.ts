@@ -6,33 +6,25 @@ const { Pool } = pg;
 /*** Tipo para registros sincronizáveis ***/
 interface SyncRecord {
   id: string;
-
   updated_at?: string | null;
-
   created_at?: string | null;
-
-  [key: string]: unknown;
+  [key: string]: any;
 }
 
 /*** Configuração do sincronizador ***/
 interface SyncConfig {
   postgresHost: string;
-
   postgresPort: number;
-
   postgresUser: string;
-
   postgresPassword: string;
-
   postgresDB: string;
 
   supabaseUrl: string;
-
   supabaseKey: string;
 
   syncInterval: number;
 
-  /*** Quem vence em caso de empate ***/
+  /*** Mantido por compatibilidade com a configuração atual ***/
   syncPriority: "supabase" | "local";
 }
 
@@ -47,36 +39,26 @@ class BiDirectionalSync {
 
   private isSyncing = false;
 
-  private syncStartTime: number = 0;
+  private syncStartTime = 0;
 
   private syncStats = {
     tabelas: 0,
-
     ok: 0,
-
     conflitos: 0,
-
     erros: 0,
+    logs: 0,
   };
 
   /*** Tabelas sincronizadas ***/
   private tables = [
     "users",
-
     "profiles",
-
     "user_roles",
-
     "planos",
-
     "clientes",
-
     "ordens_servico",
-
     "os_materiais",
-
     "os_evidencias",
-
     "projetos_ftth",
   ];
 
@@ -86,32 +68,24 @@ class BiDirectionalSync {
     /*** PostgreSQL local ***/
     this.pool = new Pool({
       host: config.postgresHost,
-
       port: config.postgresPort,
-
       user: config.postgresUser,
-
       password: config.postgresPassword,
-
       database: config.postgresDB,
     });
 
     /*** Supabase ***/
     this.supabase = createClient(
       config.supabaseUrl,
-
       config.supabaseKey,
     );
   }
 
-  /*** Iniciar sincronização automática  ***/
+  /*** Iniciar sincronização automática ***/
   async start() {
     console.log("[SYNC] Iniciando sincronização bidirecional...");
 
-    // sincronização imediata
     await this.sync();
-
-    // sincronização periódica
 
     this.syncTimer = setInterval(() => {
       this.sync().catch((err) => {
@@ -124,7 +98,6 @@ class BiDirectionalSync {
   stop() {
     if (this.syncTimer) {
       clearInterval(this.syncTimer);
-
       this.syncTimer = null;
     }
 
@@ -134,152 +107,162 @@ class BiDirectionalSync {
   /*** Executa ciclo completo ***/
   private async sync() {
     if (this.isSyncing) {
+      console.warn("[SYNC] Ciclo já está em execução. Ignorando novo ciclo.");
       return;
     }
 
     this.isSyncing = true;
-
-    // Inicia contador do tempo ANTES de atualizar o status
     this.syncStartTime = Date.now();
 
     this.syncStats = {
       tabelas: 0,
-
       ok: 0,
-
       conflitos: 0,
-
       erros: 0,
+      logs: 0,
     };
 
     try {
       await this.updateSyncStatus("running");
 
-      console.log(`[SYNC] Iniciando ciclo - ${new Date().toISOString()}`);
+      console.log(
+        `[SYNC] Iniciando ciclo - ${new Date().toISOString()}`,
+      );
 
       for (const table of this.tables) {
         try {
           await this.syncTable(table);
 
           this.syncStats.tabelas++;
-
           this.syncStats.ok++;
         } catch (err) {
+          this.syncStats.tabelas++;
           this.syncStats.erros++;
 
           console.error(
-            `[SYNC] Erro tabela ${table}`,
-
+            `[SYNC] Erro tabela ${table}:`,
             err,
           );
         }
       }
 
-      await this.updateSyncStatus("online");
+      const finalStatus =
+        this.syncStats.erros > 0 ? "online_with_errors" : "online";
 
-      console.log(`[SYNC] Ciclo concluído - ${new Date().toISOString()}`);
+      await this.updateSyncStatus(finalStatus);
+
+      console.log(
+        `[SYNC] Ciclo concluído - ${new Date().toISOString()}`,
+      );
+
+      console.log(
+        `[SYNC] Estatísticas: tabelas=${this.syncStats.tabelas}, ` +
+        `ok=${this.syncStats.ok}, ` +
+        `conflitos=${this.syncStats.conflitos}, ` +
+        `erros=${this.syncStats.erros}, ` +
+        `logs=${this.syncStats.logs}`,
+      );
     } catch (err) {
       this.syncStats.erros++;
 
       console.error(
         "[SYNC] Erro geral no ciclo:",
-
         err,
       );
 
       await this.updateSyncStatus("error");
     } finally {
       this.isSyncing = false;
-
-      // limpa contador para evitar reutilização
       this.syncStartTime = 0;
     }
   }
 
   /*** Sincronizar uma tabela específica ***/
   private async syncTable(tableName: string) {
-    try {
-      // Buscar dados Supabase
-
-      const { data: supabaseData, error: supabaseError } = await this.supabase
+    /*** Buscar dados Supabase ***/
+    const { data: supabaseData, error: supabaseError } =
+      await this.supabase
         .from(tableName)
         .select("*");
 
-      if (supabaseError) {
-        throw supabaseError;
-      }
-
-      // Buscar dados PostgreSQL
-
-      const localResult = await this.pool.query(`SELECT * FROM public."${tableName}"`);
-
-      const localData = localResult.rows;
-
-      /*** Supabase → PostgreSQL ***/
-      await this.syncDirection(
-        tableName,
-
-        supabaseData || [],
-
-        localData,
-
-        "supabase-to-local",
-      );
-
-      /*** PostgreSQL → Supabase ***/
-      await this.syncDirection(
-        tableName,
-
-        localData,
-
-        supabaseData || [],
-
-        "local-to-supabase",
-      );
-
-      console.log(`[SYNC] Tabela ${tableName} sincronizada`);
-    } catch (err) {
-      console.error(
-        `[SYNC] Erro sincronizando ${tableName}:`,
-
-        err,
-      );
+    if (supabaseError) {
+      throw supabaseError;
     }
+
+    /*** Buscar dados PostgreSQL ***/
+    const localResult = await this.pool.query(
+      `SELECT * FROM public."${tableName}"`,
+    );
+
+    const localData = localResult.rows;
+
+    /*** Supabase → PostgreSQL ***/
+    await this.syncDirection(
+      tableName,
+      supabaseData || [],
+      localData,
+      "supabase-to-local",
+    );
+
+    /*** PostgreSQL → Supabase ***/
+    await this.syncDirection(
+      tableName,
+      localData,
+      supabaseData || [],
+      "local-to-supabase",
+    );
+
+    console.log(
+      `[SYNC] Tabela ${tableName} sincronizada`,
+    );
   }
 
-  /*** Sincronização direção origem → destino ** Resolve conflito automaticamente ***/
+  /***
+   * Sincronização origem → destino
+   *
+   * Regras:
+   * 1. Registro inexistente no destino = INSERT
+   * 2. Origem mais nova = UPDATE
+   * 3. Destino mais novo = nenhuma ação
+   * 4. Mesmo timestamp + dados diferentes = conflito
+   * 5. Em conflito, PostgreSQL local sempre vence
+   ***/
   private async syncDirection(
     tableName: string,
-
     source: SyncRecord[],
-
     destination: SyncRecord[],
-
     direction: string,
   ) {
-    const destMap = new Map(destination.map((r) => [r.id, r]));
+    const destMap = new Map(
+      destination.map((record) => [record.id, record]),
+    );
 
     for (const sourceRecord of source) {
       const destRecord = destMap.get(sourceRecord.id);
 
-      // Registro novo
-
+      /*** Registro novo ***/
       if (!destRecord) {
         await this.insertRecord(
           tableName,
-
           sourceRecord,
-
           direction,
         );
 
         continue;
       }
 
-      const sourceTimestamp = sourceRecord.updated_at ?? sourceRecord.created_at;
+      const sourceTimestamp =
+        sourceRecord.updated_at ??
+        sourceRecord.created_at;
 
-      const destinationTimestamp = destRecord.updated_at ?? destRecord.created_at;
+      const destinationTimestamp =
+        destRecord.updated_at ??
+        destRecord.created_at;
 
+      /***
+       * Sem timestamp confiável:
+       * não tentar decidir qual registro é mais recente.
+       ***/
       if (!sourceTimestamp || !destinationTimestamp) {
         continue;
       }
@@ -287,51 +270,77 @@ class BiDirectionalSync {
       const sourceDate = new Date(sourceTimestamp);
       const destinationDate = new Date(destinationTimestamp);
 
-      // ===== DEBUG =====
-      console.log(`[SYNC-DEBUG] ${tableName}:${sourceRecord.id}`);
-      console.log(`   source      = ${sourceRecord.updated_at}`);
-      console.log(`   destination = ${destRecord.updated_at}`);
-      console.log(`   diff(ms)    = ${sourceDate.getTime() - destinationDate.getTime()}`);
-      // =================
+      if (
+        Number.isNaN(sourceDate.getTime()) ||
+        Number.isNaN(destinationDate.getTime())
+      ) {
+        console.warn(
+          `[SYNC] Timestamp inválido em ${tableName}:${sourceRecord.id}`,
+        );
 
-      const diff = Math.abs(sourceDate.getTime() - destinationDate.getTime());
+        continue;
+      }
 
-      // Ignora diferenças menores que 1 segundo
+      const diff =
+        Math.abs(
+          sourceDate.getTime() -
+          destinationDate.getTime(),
+        );
+
+      /***
+       * Diferenças menores que 1 segundo
+       * são consideradas o mesmo timestamp.
+       ***/
       if (diff < 1000) {
+        const sourceJson =
+          JSON.stringify(sourceRecord);
+
+        const destinationJson =
+          JSON.stringify(destRecord);
+
+        /***
+         * Mesmo timestamp e mesmo conteúdo:
+         * nada para fazer.
+         ***/
+        if (sourceJson === destinationJson) {
+          continue;
+        }
+
+        /***
+         * Mesmo timestamp, dados diferentes:
+         * conflito.
+         *
+         * REGRA DEFINIDA:
+         * PostgreSQL local sempre vence.
+         ***/
+        await this.resolveConflict(
+          tableName,
+          sourceRecord.id,
+          sourceRecord,
+          destRecord,
+          direction,
+        );
+
         continue;
       }
 
       /*** Origem mais atual ***/
       if (sourceDate > destinationDate) {
-        await this.updateRecord(tableName, sourceRecord, direction);
-
-        continue;
-      }
-
-      /*** Destino mais atual *** Nada para fazer ***/
-
-      if (destinationDate > sourceDate) {
-        continue;
-      }
-
-      /*** Mesmo horário ** Verificar diferença real ***/
-
-      const sourceJson = JSON.stringify(sourceRecord);
-
-      const destinationJson = JSON.stringify(destRecord);
-
-      if (sourceJson !== destinationJson) {
-        await this.resolveConflict(
+        await this.updateRecord(
           tableName,
-
-          sourceRecord.id,
-
           sourceRecord,
-
-          destRecord,
-
           direction,
         );
+
+        continue;
+      }
+
+      /***
+       * Destino mais atual:
+       * nada para fazer.
+       ***/
+      if (destinationDate > sourceDate) {
+        continue;
       }
     }
   }
@@ -339,41 +348,54 @@ class BiDirectionalSync {
   /*** Inserir registro ***/
   private async insertRecord(
     tableName: string,
-
     record: SyncRecord,
-
     direction: string,
   ) {
     try {
       if (direction === "supabase-to-local") {
         const columns = Object.keys(record)
-          .map((c) => `"${c}"`)
-          .join(",");
+          .map((column) => `"${column}"`)
+          .join(", ");
 
-        const values = Object.values(record)
-          .map((_, i) => `$${i + 1}`)
-          .join(",");
+        const values = Object.keys(record)
+          .map((_, index) => `$${index + 1}`)
+          .join(", ");
 
-        // Garantir dependências antes de inserir
+        /*** Garantir dependência de profiles ***/
         if (tableName === "profiles") {
-          const check = await this.pool.query(`SELECT 1 FROM public.users WHERE id = $1`, [
-            record.id,
-          ]);
+          const check = await this.pool.query(
+            `
+            SELECT 1
+            FROM public.users
+            WHERE id = $1
+            `,
+            [record.id],
+          );
 
           if (check.rowCount === 0) {
-            console.warn(`[SYNC] Pulando profile ${record.id}: usuário não existe`);
+            console.warn(
+              `[SYNC] Pulando profile ${record.id}: usuário não existe`,
+            );
 
             return;
           }
         }
 
+        /*** Garantir dependência de user_roles ***/
         if (tableName === "user_roles") {
-          const check = await this.pool.query(`SELECT 1 FROM public.users WHERE id = $1`, [
-            record.user_id,
-          ]);
+          const check = await this.pool.query(
+            `
+            SELECT 1
+            FROM public.users
+            WHERE id = $1
+            `,
+            [record.user_id],
+          );
 
           if (check.rowCount === 0) {
-            console.warn(`[SYNC] Pulando user_role ${record.user_id}: usuário não existe`);
+            console.warn(
+              `[SYNC] Pulando user_role ${record.user_id}: usuário não existe`,
+            );
 
             return;
           }
@@ -381,23 +403,17 @@ class BiDirectionalSync {
 
         await this.pool.query(
           `
-    INSERT INTO public."${tableName}"
-    (${columns})
-    VALUES (${values})
-    ON CONFLICT(id) DO NOTHING
-    `,
+          INSERT INTO public."${tableName}"
+          (${columns})
+          VALUES (${values})
+          ON CONFLICT(id) DO NOTHING
+          `,
           Object.values(record),
         );
       } else {
-        const { updated_at, created_at, ...insertData } = record;
-
-        // supabase typing exige um tipo concreto por tabela quando usado genericamente.
-        // Fazer um cast pontual para `any` aqui é a forma prática de lidar com tabelas dinâmicas.
-        const { error } = await (this.supabase as any).from(tableName).insert([insertData as any]);
-
-        if (error) {
-          throw error;
-        }
+        const { error } = await (this.supabase as any)
+          .from(tableName)
+          .insert([record]);
 
         if (error) {
           throw error;
@@ -406,241 +422,310 @@ class BiDirectionalSync {
 
       await this.logSync(
         tableName,
-
         "INSERT",
-
         record.id,
-
         "success",
-
         direction,
       );
     } catch (err) {
       console.error(
-        `[SYNC] Erro insert ${tableName}`,
-
+        `[SYNC] Erro insert ${tableName}:`,
         err,
       );
 
       await this.logSync(
         tableName,
-
         "INSERT",
-
         record.id,
-
         "error",
-
         direction,
       );
+
+      throw err;
     }
   }
 
-  /*** Atualizar registro no destino ***/
+  /*** Atualizar registro no destino correto ***/
   private async updateRecord(
     tableName: string,
-
     record: SyncRecord,
-
     direction: string,
   ) {
     try {
       if (direction === "supabase-to-local") {
-        const { ...updateData } = record;
+        /***
+         * SUPABASE → POSTGRESQL
+         *
+         * O destino é o PostgreSQL local.
+         ***/
+
+        const columns = Object.keys(record).filter(
+          (column) => column !== "id",
+        );
+
+        if (columns.length === 0) {
+          return;
+        }
+
+        const setClause = columns
+          .map(
+            (column, index) =>
+              `"${column}" = $${index + 1}`,
+          )
+          .join(", ");
+
+        const values = columns.map(
+          (column) => record[column],
+        );
+
+        values.push(record.id);
+
+        const idParameter = `$${values.length}`;
+
+        await this.pool.query(
+          `
+          UPDATE public."${tableName}"
+          SET ${setClause}
+          WHERE id = ${idParameter}
+          `,
+          values,
+        );
+      } else if (direction === "local-to-supabase") {
+        /***
+         * POSTGRESQL → SUPABASE
+         *
+         * O destino é o Supabase.
+         ***/
+
+        const { id, ...updateData } = record;
 
         const { error } = await (this.supabase as any)
           .from(tableName)
-          .update(record as any)
-          .eq("id", record.id);
+          .update(updateData)
+          .eq("id", id);
 
         if (error) {
           throw error;
         }
+      } else {
+        throw new Error(
+          `Direção de sincronização inválida: ${direction}`,
+        );
       }
 
       await this.logSync(
         tableName,
-
         "UPDATE",
-
         record.id,
-
         "success",
-
         direction,
       );
     } catch (err) {
       console.error(
         `[SYNC] Erro update ${tableName}:`,
-
         err,
       );
 
       await this.logSync(
         tableName,
-
         "UPDATE",
-
         record.id,
-
         "error",
-
         direction,
       );
+
+      throw err;
     }
   }
 
   /*** Resolver conflito automaticamente ***/
   private async resolveConflict(
     tableName: string,
-
     recordId: string,
-
     source: SyncRecord,
-
     destination: SyncRecord,
-
     direction: string,
   ) {
+    /***
+     * Mantemos a regra existente para users:
+     * não sobrescrever automaticamente conflitos de usuários.
+     ***/
     if (tableName === "users") {
+      console.warn(
+        `[SYNC] Conflito em users:${recordId} não sobrescrito automaticamente`,
+      );
+
       return;
     }
 
     try {
-      console.warn(`[SYNC] Resolvendo conflito ${tableName}:${recordId}`);
+      console.warn(
+        `[SYNC] Conflito detectado ${tableName}:${recordId}`,
+      );
 
-      const sourceUpdated = source.updated_at ?? source.created_at ?? null;
+      /***
+       * REGRA DEFINIDA:
+       *
+       * PostgreSQL local sempre vence.
+       *
+       * Se a direção atual for:
+       *
+       * SUPABASE → LOCAL
+       *   source      = Supabase
+       *   destination = Local
+       *
+       * Portanto o destino local já é o vencedor,
+       * e precisamos sobrescrever o Supabase.
+       *
+       * LOCAL → SUPABASE
+       *   source      = Local
+       *   destination = Supabase
+       *
+       * Portanto o source é o vencedor,
+       * e precisamos sobrescrever o Supabase.
+       ***/
 
-      const destinationUpdated = destination.updated_at ?? destination.created_at ?? null;
+      if (direction === "supabase-to-local") {
+        /***
+         * Local venceu.
+         * Sobrescreve o Supabase com o registro local.
+         ***/
 
-      if (!sourceUpdated || !destinationUpdated) {
-        return;
-      }
-
-      let winner: "source" | "destination";
-
-      /*** Regra:** supabase = Supabase vence ** local = PostgreSQL vence ***/
-
-      if (this.config.syncPriority === "supabase") {
-        winner = direction === "supabase-to-local" ? "source" : "destination";
-      } else {
-        winner = direction === "local-to-supabase" ? "source" : "destination";
-      }
-
-      if (winner === "source") {
         await this.updateRecord(
           tableName,
-
-          source,
-
-          direction,
-        );
-      } else {
-        const reverseDirection =
-          direction === "supabase-to-local" ? "local-to-supabase" : "supabase-to-local";
-
-        await this.updateRecord(
-          tableName,
-
           destination,
+          "local-to-supabase",
+        );
+      } else if (direction === "local-to-supabase") {
+        /***
+         * Local venceu.
+         * Sobrescreve o Supabase com o registro local.
+         ***/
 
-          reverseDirection,
+        await this.updateRecord(
+          tableName,
+          source,
+          "local-to-supabase",
+        );
+      } else {
+        throw new Error(
+          `Direção inválida ao resolver conflito: ${direction}`,
         );
       }
 
-      // Guardar histórico
-
+      /*** Registrar histórico do conflito ***/
       await this.recordConflict(
         tableName,
-
         recordId,
-
         source,
-
         destination,
       );
 
-      console.log(`[SYNC] Conflito resolvido ${tableName}:${recordId} vencedor=${winner}`);
+      /*** Incrementar contador somente após resolução bem-sucedida ***/
+      this.syncStats.conflitos++;
+
+      console.log(
+        `[SYNC] Conflito resolvido ${tableName}:${recordId} ` +
+        `vencedor=PostgreSQL-local`,
+      );
     } catch (err) {
       console.error(
-        "[SYNC] Erro resolver conflito:",
-
+        `[SYNC] Erro resolver conflito ${tableName}:${recordId}:`,
         err,
       );
+
+      throw err;
     }
   }
 
   /*** Registrar conflito para auditoria ***/
   private async recordConflict(
     tableName: string,
-
     recordId: string,
-
     source: SyncRecord,
-
     destination: SyncRecord,
   ) {
     try {
       await this.pool.query(
         `
-                INSERT INTO public.sync_conflicts
-                (
-                    tabela,
-                    registro_id,
-                    supabase_data,
-                    local_data
-                )
-
-                VALUES($1,$2,$3,$4)
-                `,
-
-        [tableName, recordId, JSON.stringify(source), JSON.stringify(destination)],
+        INSERT INTO public.sync_conflicts
+        (
+          tabela,
+          registro_id,
+          supabase_data,
+          local_data
+        )
+        VALUES ($1, $2, $3, $4)
+        `,
+        [
+          tableName,
+          recordId,
+          JSON.stringify(
+            source,
+          ),
+          JSON.stringify(
+            destination,
+          ),
+        ],
       );
 
-      console.warn(`[SYNC] Conflito registrado ${tableName}:${recordId}`);
+      console.warn(
+        `[SYNC] Conflito registrado ${tableName}:${recordId}`,
+      );
     } catch (err) {
       console.error(
-        "[SYNC] Erro registrar conflito:",
-
+        `[SYNC] Erro registrar conflito:`,
         err,
       );
+
+      throw err;
     }
   }
 
-  /*** Log sincronização ***/
+  /*** Log de sincronização ***/
   private async logSync(
     tableName: string,
-
     operacao: string,
-
     pk: string,
-
     status: string,
-
     direction: string,
   ) {
     try {
       await this.pool.query(
         `
-                INSERT INTO public.sync_logs
-                (
-                    tabela,
-                    operacao,
-                    pk,
-                    origem
-                )
-
-                VALUES($1,$2,$3,$4)
-                `,
-
-        [tableName, `${operacao}:${status}`, pk, direction],
+        INSERT INTO public.sync_logs
+        (
+          tabela,
+          operacao,
+          pk,
+          origem
+        )
+        VALUES ($1, $2, $3, $4)
+        `,
+        [
+          tableName,
+          `${operacao}:${status}`,
+          pk,
+          direction,
+        ],
       );
+
+      /***
+       * Contador interno de logs.
+       *
+       * Não depende da quantidade existente na tabela.
+       ***/
+      this.syncStats.logs++;
     } catch (err) {
       console.error(
         "[SYNC] Erro log:",
-
         err,
       );
+
+      /***
+       * Erro de auditoria não deve apagar
+       * o resultado da operação principal.
+       ***/
     }
   }
 
@@ -648,87 +733,137 @@ class BiDirectionalSync {
   async checkHealth() {
     const health = {
       postgres: false,
-
       supabase: false,
-
       lastSync: null as Date | null,
     };
 
+    /*** PostgreSQL ***/
     try {
-      const result = await this.pool.query("SELECT NOW()");
+      const result =
+        await this.pool.query(
+          "SELECT NOW()",
+        );
 
-      health.postgres = !!result.rows[0];
+      health.postgres =
+        !!result.rows[0];
     } catch {
-      console.error("[SYNC] PostgreSQL offline");
+      console.error(
+        "[SYNC] PostgreSQL offline",
+      );
     }
 
+    /*** Supabase ***/
     try {
-      const { data } = await this.supabase
+      const { data, error } =
+        await this.supabase
+          .from("sync_versions")
+          .select("ultima_sincronizacao")
+          .limit(1);
 
-        .from("sync_versions")
+      if (error) {
+        throw error;
+      }
 
-        .select("ultima_sincronizacao")
-
-        .limit(1);
-
-      health.supabase = !!data;
+      health.supabase =
+        !!data;
 
       if (data?.[0]) {
-        const row = data[0] as { ultima_sincronizacao?: string | null };
-        if (row.ultima_sincronizacao) {
-          health.lastSync = new Date(row.ultima_sincronizacao);
+        const row =
+          data[0] as {
+            ultima_sincronizacao?:
+            string | null;
+          };
+
+        if (
+          row.ultima_sincronizacao
+        ) {
+          health.lastSync =
+            new Date(
+              row.ultima_sincronizacao,
+            );
         }
       }
     } catch {
-      console.error("[SYNC] Supabase offline");
+      console.error(
+        "[SYNC] Supabase offline",
+      );
     }
 
     return health;
   }
 
-  private async updateSyncStatus(status: string) {
+  /*** Atualizar status do sincronizador ***/
+  private async updateSyncStatus(
+    status: string,
+  ) {
     try {
-      const tempo = Date.now() - this.syncStartTime;
+      const tempo =
+        this.syncStartTime > 0
+          ? Date.now() -
+          this.syncStartTime
+          : 0;
 
+      /***
+       * Garantir que exista o registro principal.
+       *
+       * Caso id=1 não exista, criamos.
+       ***/
       await this.pool.query(
         `
-            UPDATE public.sync_status
-
-            SET
-
-            ultima_execucao = NOW(),
-
-            status = $1,
-
-            tabelas_processadas = $2,
-
-            tabelas_ok = $3,
-
-            conflitos_resolvidos = $4,
-
-            erros = $5,
-
-            tempo_execucao = $6
-
-            WHERE id = 1
-            `,
-
+        INSERT INTO public.sync_status
+        (
+          id,
+          status,
+          tabelas_processadas,
+          tabelas_ok,
+          conflitos_resolvidos,
+          erros,
+          tempo_execucao
+        )
+        VALUES
+        (
+          1,
+          $1,
+          $2,
+          $3,
+          $4,
+          $5,
+          $6
+        )
+        ON CONFLICT (id)
+        DO UPDATE SET
+          ultima_execucao = NOW(),
+          status = EXCLUDED.status,
+          tabelas_processadas = EXCLUDED.tabelas_processadas,
+          tabelas_ok = EXCLUDED.tabelas_ok,
+          conflitos_resolvidos = EXCLUDED.conflitos_resolvidos,
+          erros = EXCLUDED.erros,
+          tempo_execucao = EXCLUDED.tempo_execucao
+        `,
         [
           status,
-
           this.syncStats.tabelas,
-
           this.syncStats.ok,
-
           this.syncStats.conflitos,
-
           this.syncStats.erros,
-
           tempo,
         ],
       );
+
+      console.log(
+        `[SYNC-STATUS] status=${status} ` +
+        `tabelas=${this.syncStats.tabelas} ` +
+        `ok=${this.syncStats.ok} ` +
+        `conflitos=${this.syncStats.conflitos} ` +
+        `erros=${this.syncStats.erros} ` +
+        `logs=${this.syncStats.logs} ` +
+        `tempo=${tempo}ms`,
+      );
     } catch (err) {
-      console.error("[SYNC] Erro atualizando status:", err);
+      console.error(
+        "[SYNC] Erro atualizando status:",
+        err,
+      );
     }
   }
 
@@ -737,12 +872,16 @@ class BiDirectionalSync {
     this.stop();
 
     await this.pool.end();
+
+    console.log(
+      "[SYNC] Conexão PostgreSQL encerrada",
+    );
   }
 }
 
 export default BiDirectionalSync;
 
-export type { SyncConfig, SyncRecord };
-function eq(arg0: string, id: string) {
-  throw new Error("Function not implemented.");
-}
+export type {
+  SyncConfig,
+  SyncRecord,
+};
