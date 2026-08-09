@@ -217,7 +217,87 @@ class BiDirectionalSync {
     );
   }
 
-  /***
+  /**
+   * Normaliza registros antes da comparação.
+   *
+   * Objetivo:
+   * - Considerar datas equivalentes:
+   *   2026-07-13T00:49:44.289Z
+   *   2026-07-13T00:49:44.289+00:00
+   *
+   * - Normalizar objetos independentemente da ordem das propriedades.
+   * - Não alterar os dados reais armazenados no banco.
+   */
+  private normalizeForComparison(
+    record: SyncRecord,
+  ): string {
+    const normalizeValue = (
+      value: any,
+      key?: string,
+    ): any => {
+      if (value === null || value === undefined) {
+        return value;
+      }
+
+      /**
+       * Datas/timestamps.
+       */
+      if (
+        typeof value === "string" &&
+        key &&
+        (
+          key === "created_at" ||
+          key === "updated_at" ||
+          key === "deleted_at" ||
+          key === "ultima_execucao" ||
+          key.endsWith("_at")
+        )
+      ) {
+        const date = new Date(value);
+
+        if (!Number.isNaN(date.getTime())) {
+          return date.toISOString();
+        }
+      }
+
+      /**
+       * Arrays
+       */
+      if (Array.isArray(value)) {
+        return value.map((item) =>
+          normalizeValue(item),
+        );
+      }
+
+      /**
+       * Objetos
+       */
+      if (typeof value === "object") {
+        return Object.keys(value)
+          .sort()
+          .reduce(
+            (result, objectKey) => {
+              result[objectKey] =
+                normalizeValue(
+                  value[objectKey],
+                  objectKey,
+                );
+
+              return result;
+            },
+            {} as Record<string, any>,
+          );
+      }
+
+      return value;
+    };
+
+    return JSON.stringify(
+      normalizeValue(record),
+    );
+  }
+
+  /**
    * Sincronização origem → destino
    *
    * Regras:
@@ -226,13 +306,14 @@ class BiDirectionalSync {
    * 3. Destino mais novo = nenhuma ação
    * 4. Mesmo timestamp + dados diferentes = conflito
    * 5. Em conflito, PostgreSQL local sempre vence
-   ***/
+   */
   private async syncDirection(
     tableName: string,
     source: SyncRecord[],
     destination: SyncRecord[],
     direction: string,
   ) {
+
     const destMap = new Map(
       destination.map((record) => [record.id, record]),
     );
@@ -293,15 +374,19 @@ class BiDirectionalSync {
        ***/
       if (diff < 1000) {
         const sourceJson =
-          JSON.stringify(sourceRecord);
+          this.normalizeForComparison(
+            sourceRecord,
+          );
 
         const destinationJson =
-          JSON.stringify(destRecord);
+          this.normalizeForComparison(
+            destRecord,
+          );
 
-        /***
-         * Mesmo timestamp e mesmo conteúdo:
-         * nada para fazer.
-         ***/
+        /**
+         * Mesmo conteúdo após normalização:
+         * não existe conflito.
+         */
         if (sourceJson === destinationJson) {
           continue;
         }
