@@ -1,4 +1,4 @@
-import { loadEnvFile } from "node:process";
+import { loadEnvFile } from "process";
 import { MikroTikService } from "./src/services/mikrotik";
 
 loadEnvFile(".env");
