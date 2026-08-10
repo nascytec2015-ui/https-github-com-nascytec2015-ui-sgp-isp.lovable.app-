@@ -1,4 +1,4 @@
-import MikroTikClient from "./MikroTikClient";
+import { MikroTikClient } from "./MikroTikClient";
 
 export interface MikroTikConfig {
     host: string;
