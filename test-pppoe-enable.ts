@@ -1,18 +1,16 @@
-import process from "node:process";
 import { loadEnvFile } from "node:process";
-
 import { MikroTikService } from "./src/services/mikrotik";
 
 loadEnvFile(".env");
 
-const USERNAME = "teste-sgp";
-
 async function main() {
     const mikrotik = new MikroTikService();
 
+    const username = "teste-sgp";
+
     try {
         console.log("====================================");
-        console.log(" TESTE DE DESBLOQUEIO PPPoE");
+        console.log(" TESTE REAL - DESBLOQUEAR PPPoE");
         console.log("====================================");
 
         console.log("\n🔌 Conectando ao MikroTik...");
@@ -21,59 +19,57 @@ async function main() {
 
         console.log("✅ Serviço MikroTik conectado!");
 
-        console.log(`\n🔎 Procurando usuário PPPoE "${USERNAME}"...`);
+        console.log(`\n🔎 Procurando usuário "${username}"...`);
 
-        const userBefore = await mikrotik.findPPPUser(USERNAME);
+        const before = await mikrotik.findPPPUser(username);
 
-        if (!userBefore) {
+        if (!before) {
             throw new Error(
-                `Usuário PPPoE "${USERNAME}" não foi encontrado no MikroTik.`,
+                `O usuário PPP "${username}" não foi encontrado no MikroTik.`,
             );
         }
 
         console.log("✅ Usuário encontrado:");
-        console.table([userBefore]);
+        console.table([before]);
 
-        if (!userBefore.disabled) {
+        if (!before.disabled) {
             console.log(
-                `\n⚠️ O usuário "${USERNAME}" já está desbloqueado.`,
+                `\n⚠️ O usuário "${username}" já está desbloqueado.`,
             );
+        } else {
+            console.log("\n🔓 Desbloqueando PPPoE...");
+            console.log(`   Usuário: ${username}`);
 
-            return;
+            const updated = await mikrotik.enablePPPUser(username);
+
+            console.log("\n✅ Comando de desbloqueio executado!");
+            console.table([updated]);
         }
 
-        console.log("\n🔓 Desbloqueando PPPoE...");
-        console.log(`   Usuário: ${USERNAME}`);
+        console.log("\n🔎 Confirmando estado no RB750...");
 
-        const updatedUser = await mikrotik.enablePPPUser(USERNAME);
+        const confirmed = await mikrotik.findPPPUser(username);
 
-        console.log("\n✅ Comando de desbloqueio executado!");
-        console.table([updatedUser]);
-
-        console.log("\n🔎 Confirmando desbloqueio no RB750...");
-
-        const userAfter = await mikrotik.findPPPUser(USERNAME);
-
-        if (!userAfter) {
+        if (!confirmed) {
             throw new Error(
-                `Não foi possível encontrar "${USERNAME}" após o desbloqueio.`,
+                `Não foi possível localizar "${username}" após o desbloqueio.`,
             );
         }
 
-        console.table([userAfter]);
+        console.table([confirmed]);
 
-        if (userAfter.disabled) {
+        if (confirmed.disabled) {
             throw new Error(
-                `O usuário "${USERNAME}" continua bloqueado no RB750.`,
+                `❌ O usuário "${username}" continua bloqueado no RB750.`,
             );
         }
 
         console.log(
             `\n🎉 DESBLOQUEIO CONFIRMADO COM SUCESSO NO RB750!`,
         );
-        console.log(`   Usuário: ${userAfter.username}`);
-        console.log(`   Perfil: ${userAfter.profile}`);
-        console.log(`   Disabled: ${userAfter.disabled}`);
+        console.log(`Usuário: ${confirmed.username}`);
+        console.log(`Perfil: ${confirmed.profile}`);
+        console.log(`Disabled: ${confirmed.disabled}`);
     } catch (error) {
         console.error("\n❌ Erro no teste de desbloqueio:");
 
@@ -83,7 +79,6 @@ async function main() {
             console.error(error);
         }
 
-        process.exitCode = 1;
     } finally {
         await mikrotik.disconnect();
     }
@@ -91,5 +86,4 @@ async function main() {
 
 main().catch((error) => {
     console.error("\n❌ Erro inesperado:", error);
-    process.exitCode = 1;
 });
