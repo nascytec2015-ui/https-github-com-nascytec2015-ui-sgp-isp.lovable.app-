@@ -18,6 +18,7 @@ export interface PPPUser {
 }
 
 export class MikroTikService {
+    [x: string]: any;
     private readonly client: MikroTikClient;
     private readonly config: MikroTikConfig;
 
