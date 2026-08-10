@@ -28,7 +28,6 @@ async function main() {
             console.error(error);
         }
 
-        process.exitCode = 1;
     } finally {
         await mikrotik.disconnect();
     }
