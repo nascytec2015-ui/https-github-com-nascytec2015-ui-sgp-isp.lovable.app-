@@ -1,4 +1,4 @@
-import { loadEnvFile } from "process";
+﻿import process, { loadEnvFile } from "node:process";
 import { MikroTikService } from "./src/services/mikrotik";
 
 loadEnvFile(".env");
@@ -13,27 +13,32 @@ async function main() {
 
         await mikrotik.connect();
 
-        console.log("✅ Serviço MikroTik conectado!");
+        console.log("OK - Servico MikroTik conectado!");
+        console.log("\nConsultando usuarios PPP cadastrados...");
 
-        console.log("\nConsultando usuários PPP cadastrados...");
-
-        const secrets = await mikrotik.getPPPSecrets();
+        const users = await mikrotik.getPPPUsers();
 
         console.log("\nPPP Secrets:");
-        console.dir(secrets, { depth: null });
+        console.table(users);
 
-        console.log("\n✅ Consulta de PPP Secrets concluída!");
+        console.log(`\nOK - Total de PPPoE: ${users.length}`);
+        console.log("OK - Consulta de PPP Secrets concluida!");
     } catch (error) {
-        console.error("\n❌ Erro ao consultar PPP Secrets:");
+        console.error("\nERRO ao consultar PPP Secrets:");
 
         if (error instanceof Error) {
             console.error(error.message);
         } else {
             console.error(error);
         }
+
+        process.exitCode = 1;
     } finally {
         await mikrotik.disconnect();
     }
 }
 
-main();
+main().catch((error) => {
+    console.error("Erro inesperado:", error);
+    process.exitCode = 1;
+});
