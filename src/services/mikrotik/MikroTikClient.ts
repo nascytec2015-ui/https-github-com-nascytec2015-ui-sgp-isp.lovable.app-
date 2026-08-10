@@ -12,6 +12,14 @@ export interface MikroTikClientConfig {
   tls: boolean;
 }
 
+export interface PPPUser {
+  id: string;
+  username: string;
+  service: string;
+  profile: string;
+  disabled: boolean;
+}
+
 /**
  * Cliente responsável exclusivamente
  * pela comunicação com o RouterOS.
@@ -68,7 +76,7 @@ export class MikroTikClient {
 
     console.log(
       `[MikroTikClient] Conectando ao MikroTik ` +
-        `${ this.config.host }:${ this.config.port }...`,
+      `${this.config.host}:${this.config.port}...`,
     );
 
     this.api = this.createApi();
@@ -120,10 +128,7 @@ export class MikroTikClient {
    * Executa um comando RouterOS.
    *
    * Exemplo:
-   *
-   * client.write(
-   *   "/ppp/secret/print"
-   * );
+   * client.write("/ppp/secret/print");
    */
   async write(
     ...commands: string[]
@@ -161,11 +166,290 @@ export class MikroTikClient {
   }
 
   /**
+   * Lista todos os usuários PPP/PPPoE.
+   */
+  async getPPPUsers(): Promise<PPPUser[]> {
+    const result = await this.write(
+      "/ppp/secret/print",
+    );
+
+    return result.map((secret) => ({
+      id: secret[".id"] ?? "",
+      username: secret["name"] ?? "",
+      service: secret["service"] ?? "",
+      profile: secret["profile"] ?? "",
+      disabled: secret["disabled"] === "true",
+    }));
+  }
+
+  /**
+   * Procura um usuário PPP pelo nome.
+   */
+  async findPPPUser(
+    username: string,
+  ): Promise<PPPUser | null> {
+    const normalizedUsername = username
+      .trim()
+      .toLowerCase();
+
+    if (!normalizedUsername) {
+      throw new Error(
+        "O usuário PPP é obrigatório.",
+      );
+    }
+
+    const users = await this.getPPPUsers();
+
+    return (
+      users.find(
+        (user) =>
+          user.username.toLowerCase() ===
+          normalizedUsername,
+      ) ?? null
+    );
+  }
+
+  /**
+   * Cria um usuário PPPoE.
+   */
+  async createPPPUser(
+    username: string,
+    password: string,
+    profile: string,
+  ): Promise<PPPUser> {
+    const normalizedUsername = username.trim();
+    const normalizedProfile = profile.trim();
+
+    if (!normalizedUsername) {
+      throw new Error(
+        "O usuário PPP é obrigatório.",
+      );
+    }
+
+    if (!password) {
+      throw new Error(
+        "A senha PPP é obrigatória.",
+      );
+    }
+
+    if (!normalizedProfile) {
+      throw new Error(
+        "O perfil PPP é obrigatório.",
+      );
+    }
+
+    const existingUser =
+      await this.findPPPUser(
+        normalizedUsername,
+      );
+
+    if (existingUser) {
+      throw new Error(
+        `O usuário PPP "${normalizedUsername}" já existe no MikroTik.`,
+      );
+    }
+
+    await this.write(
+      "/ppp/secret/add",
+      `=name=${normalizedUsername}`,
+      `=password=${password}`,
+      "=service=pppoe",
+      `=profile=${normalizedProfile}`,
+    );
+
+    const createdUser =
+      await this.findPPPUser(
+        normalizedUsername,
+      );
+
+    if (!createdUser) {
+      throw new Error(
+        `O usuário PPP "${normalizedUsername}" não foi encontrado após a criação.`,
+      );
+    }
+
+    return createdUser;
+  }
+
+  /**
+   * Altera senha e/ou perfil do PPPoE.
+   */
+  async updatePPPUser(
+    username: string,
+    data: {
+      password?: string;
+      profile?: string;
+    },
+  ): Promise<PPPUser> {
+    const user =
+      await this.findPPPUser(username);
+
+    if (!user) {
+      throw new Error(
+        `O usuário PPP "${username}" não foi encontrado no MikroTik.`,
+      );
+    }
+
+    const commands: string[] = [
+      "/ppp/secret/set",
+      `=.id=${user.id}`,
+    ];
+
+    if (data.password !== undefined) {
+      if (!data.password) {
+        throw new Error(
+          "A nova senha PPP não pode ser vazia.",
+        );
+      }
+
+      commands.push(
+        `=password=${data.password}`,
+      );
+    }
+
+    if (data.profile !== undefined) {
+      const profile =
+        data.profile.trim();
+
+      if (!profile) {
+        throw new Error(
+          "O perfil PPP não pode ser vazio.",
+        );
+      }
+
+      commands.push(
+        `=profile=${profile}`,
+      );
+    }
+
+    if (commands.length === 2) {
+      throw new Error(
+        "Informe password ou profile para alterar o usuário PPP.",
+      );
+    }
+
+    await this.write(...commands);
+
+    const updatedUser =
+      await this.findPPPUser(username);
+
+    if (!updatedUser) {
+      throw new Error(
+        `Não foi possível confirmar a atualização do usuário "${username}".`,
+      );
+    }
+
+    return updatedUser;
+  }
+
+  /**
+   * Bloqueia um usuário PPPoE.
+   */
+  async disablePPPUser(
+    username: string,
+  ): Promise<PPPUser> {
+    const user =
+      await this.findPPPUser(username);
+
+    if (!user) {
+      throw new Error(
+        `O usuário PPP "${username}" não foi encontrado no MikroTik.`,
+      );
+    }
+
+    if (user.disabled) {
+      return user;
+    }
+
+    await this.write(
+      "/ppp/secret/set",
+      `=.id=${user.id}`,
+      "=disabled=yes",
+    );
+
+    const updatedUser =
+      await this.findPPPUser(username);
+
+    if (!updatedUser) {
+      throw new Error(
+        `Não foi possível confirmar o bloqueio de "${username}".`,
+      );
+    }
+
+    return updatedUser;
+  }
+
+  /**
+   * Desbloqueia um usuário PPPoE.
+   */
+  async enablePPPUser(
+    username: string,
+  ): Promise<PPPUser> {
+    const user =
+      await this.findPPPUser(username);
+
+    if (!user) {
+      throw new Error(
+        `O usuário PPP "${username}" não foi encontrado no MikroTik.`,
+      );
+    }
+
+    if (!user.disabled) {
+      return user;
+    }
+
+    await this.write(
+      "/ppp/secret/set",
+      `=.id=${user.id}`,
+      "=disabled=no",
+    );
+
+    const updatedUser =
+      await this.findPPPUser(username);
+
+    if (!updatedUser) {
+      throw new Error(
+        `Não foi possível confirmar o desbloqueio de "${username}".`,
+      );
+    }
+
+    return updatedUser;
+  }
+
+  /**
+   * Remove um usuário PPPoE.
+   */
+  async deletePPPUser(
+    username: string,
+  ): Promise<void> {
+    const user =
+      await this.findPPPUser(username);
+
+    if (!user) {
+      throw new Error(
+        `O usuário PPP "${username}" não foi encontrado no MikroTik.`,
+      );
+    }
+
+    await this.write(
+      "/ppp/secret/remove",
+      `=.id=${user.id}`,
+    );
+
+    const deletedUser =
+      await this.findPPPUser(username);
+
+    if (deletedUser) {
+      throw new Error(
+        `Não foi possível confirmar a remoção de "${username}".`,
+      );
+    }
+  }
+
+  /**
    * Verifica se está conectado.
    */
   get connected(): boolean {
     return this.api?.connected ?? false;
   }
 }
-
-export default MikroTikClient;
