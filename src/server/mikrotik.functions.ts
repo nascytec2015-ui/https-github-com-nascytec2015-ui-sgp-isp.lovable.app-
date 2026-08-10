@@ -9,7 +9,7 @@ import { MikroTikService } from "@/services/mikrotik";
  * ============================================================
  */
 
-const usernameSchema = z.object({
+const pppUsernameSchema = z.object({
     username: z.string().trim().min(1).max(80),
 });
 
@@ -27,68 +27,78 @@ const updatePPPInput = z.object({
 
 /**
  * ============================================================
- * HELPER
+ * HELPERS
  * ============================================================
  */
 
-async function withMikroTik<T>(
-    callback: (mikrotik: MikroTikService) => Promise<T>,
-): Promise<T> {
-    const mikrotik = new MikroTikService();
-
-    try {
-        await mikrotik.connect();
-
-        return await callback(mikrotik);
-    } finally {
-        await mikrotik.disconnect();
-    }
+function serializePPPUser(user: {
+    id: string;
+    username: string;
+    service: string;
+    profile: string;
+    disabled: boolean;
+}) {
+    return {
+        id: user.id,
+        username: user.username,
+        service: user.service,
+        profile: user.profile,
+        disabled: user.disabled,
+    };
 }
 
 /**
  * ============================================================
- * LISTAR TODOS OS PPPoE
+ * LISTAR PPPoE
  * ============================================================
  */
 
 export const getPPPUsers = createServerFn({
     method: "GET",
 }).handler(async () => {
-    return withMikroTik(async (mikrotik) => {
+    const mikrotik = new MikroTikService();
+
+    try {
+        await mikrotik.connect();
+
         const users = await mikrotik.getPPPUsers();
 
         return {
             success: true,
-            users,
+            users: users.map(serializePPPUser),
+            total: users.length,
         };
-    });
+    } finally {
+        await mikrotik.disconnect();
+    }
 });
 
 /**
  * ============================================================
- * BUSCAR UM PPPoE
+ * BUSCAR PPPoE
  * ============================================================
  */
 
-export const getPPPUser = createServerFn({
+export const findPPPUser = createServerFn({
     method: "POST",
 })
-    .validator(usernameSchema)
+    .validator(pppUsernameSchema)
     .handler(async ({ data }) => {
-        return withMikroTik(async (mikrotik) => {
-            const user = await mikrotik.findPPPUser(data.username);
+        const mikrotik = new MikroTikService();
 
-            if (!user) {
-                throw new Error(
-                    `O usuário PPP "${data.username}" não foi encontrado.`,
-                );
-            }
+        try {
+            await mikrotik.connect();
+
+            const user = await mikrotik.findPPPUser(data.username);
 
             return {
                 success: true,
-                user,
+                found: !!user,
+                user: user ? serializePPPUser(user) : null,
             };
-        });
+        } finally {
+            await mikrotik.disconnect();
+        }
     });
 
 /**
@@ -102,7 +112,11 @@ export const createPPPForClient = createServerFn({
 })
     .validator(createPPPInput)
     .handler(async ({ data }) => {
-        return withMikroTik(async (mikrotik) => {
+        const mikrotik = new MikroTikService();
+
+        try {
+            await mikrotik.connect();
+
             const user = await mikrotik.createPPPUser(
                 data.username,
                 data.password,
@@ -111,26 +125,18 @@ export const createPPPForClient = createServerFn({
 
             return {
                 success: true,
-                message: "PPPoE criado com sucesso.",
-                user: {
-                    id: user.id,
-                    username: user.username,
-                    service: user.service,
-                    profile: user.profile,
-                    disabled: user.disabled,
-                },
+                message: `PPPoE "${data.username}" criado com sucesso.`,
+                user: serializePPPUser(user),
             };
-        });
+        } finally {
+            await mikrotik.disconnect();
+        }
     });
 
 /**
  * ============================================================
- * EDITAR PPPoE
+ * ALTERAR PPPoE
  * ============================================================
- *
- * Pode alterar:
- * - senha
- * - perfil
  */
 
 export const updatePPPForClient = createServerFn({
@@ -138,16 +144,11 @@ export const updatePPPForClient = createServerFn({
 })
     .validator(updatePPPInput)
     .handler(async ({ data }) => {
-        if (
-            data.password === undefined &&
-            data.profile === undefined
-        ) {
-            throw new Error(
-                "Informe a nova senha ou o novo perfil.",
-            );
-        }
+        const mikrotik = new MikroTikService();
 
-        return withMikroTik(async (mikrotik) => {
+        try {
+            await mikrotik.connect();
+
             const user = await mikrotik.updatePPPUser(
                 data.username,
                 {
@@ -158,10 +159,12 @@ export const updatePPPForClient = createServerFn({
 
             return {
                 success: true,
-                message: "PPPoE atualizado com sucesso.",
-                user,
+                message: `PPPoE "${data.username}" atualizado com sucesso.`,
+                user: serializePPPUser(user),
             };
-        });
+        } finally {
+            await mikrotik.disconnect();
+        }
     });
 
 /**
@@ -173,19 +176,23 @@ export const updatePPPForClient = createServerFn({
 export const disablePPPForClient = createServerFn({
     method: "POST",
 })
-    .validator(usernameSchema)
+    .validator(pppUsernameSchema)
     .handler(async ({ data }) => {
-        return withMikroTik(async (mikrotik) => {
-            const user = await mikrotik.disablePPPUser(
-                data.username,
-            );
+        const mikrotik = new MikroTikService();
+
+        try {
+            await mikrotik.connect();
+
+            const user = await mikrotik.disablePPPUser(data.username);
 
             return {
                 success: true,
-                message: "PPPoE bloqueado com sucesso.",
-                user,
+                message: `PPPoE "${data.username}" bloqueado com sucesso.`,
+                user: serializePPPUser(user),
             };
-        });
+        } finally {
+            await mikrotik.disconnect();
+        }
     });
 
 /**
@@ -197,19 +204,23 @@ export const disablePPPForClient = createServerFn({
 export const enablePPPForClient = createServerFn({
     method: "POST",
 })
-    .validator(usernameSchema)
+    .validator(pppUsernameSchema)
     .handler(async ({ data }) => {
-        return withMikroTik(async (mikrotik) => {
-            const user = await mikrotik.enablePPPUser(
-                data.username,
-            );
+        const mikrotik = new MikroTikService();
+
+        try {
+            await mikrotik.connect();
+
+            const user = await mikrotik.enablePPPUser(data.username);
 
             return {
                 success: true,
-                message: "PPPoE desbloqueado com sucesso.",
-                user,
+                message: `PPPoE "${data.username}" desbloqueado com sucesso.`,
+                user: serializePPPUser(user),
             };
-        });
+        } finally {
+            await mikrotik.disconnect();
+        }
     });
 
 /**
@@ -221,36 +232,21 @@ export const enablePPPForClient = createServerFn({
 export const deletePPPForClient = createServerFn({
     method: "POST",
 })
-    .validator(usernameSchema)
+    .validator(pppUsernameSchema)
     .handler(async ({ data }) => {
-        return withMikroTik(async (mikrotik) => {
-            await mikrotik.deletePPPUser(
-                data.username,
-            );
+        const mikrotik = new MikroTikService();
+
+        try {
+            await mikrotik.connect();
+
+            await mikrotik.deletePPPUser(data.username);
 
             return {
                 success: true,
                 message: `PPPoE "${data.username}" removido com sucesso.`,
+                username: data.username,
             };
-        });
+        } finally {
+            await mikrotik.disconnect();
+        }
     });
-
-/**
- * ============================================================
- * SESSÕES PPPoE ATIVAS
- * ============================================================
- */
-
-export const getActivePPPSessions = createServerFn({
-    method: "GET",
-}).handler(async () => {
-    return withMikroTik(async (mikrotik) => {
-        const sessions =
-            await mikrotik.getActivePPPSessions();
-
-        return {
-            success: true,
-            sessions,
-        };
-    });
-});
